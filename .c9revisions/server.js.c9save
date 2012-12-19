@@ -1,0 +1,2 @@
+{"ts":1355943476447,"silentsave":true,"restoring":false,"patch":[[{"diffs":[[1,"var http = require('http');"]],"start1":0,"start2":0,"length1":0,"length2":27}]],"length":27}
+{"contributors":[],"silentsave":false,"ts":1355943719784,"patch":[[{"diffs":[[0,"'http');"],[1,"\nvar port = process.env.PORT || 1337;\n\nhttp.createServer(function(req,res) {\n    res.writeHead(200, {'Content-Type':'text/plain'});\n    res.end('Hello World\\n');\n}).listen(port);"]],"start1":19,"start2":19,"length1":8,"length2":186}]],"length":205,"saved":false}
