@@ -6,6 +6,7 @@ var redisHost = "umento.us";
 var http = require('http');
 var redis = require('redis');
 var redisClient = redis.createClient(redisPort, redisHost);
+redisClient.auth("cauVK8QGb5neYUKGnQrMyEIU");
 
 http.createServer(function(req, res) {
     redisClient.set("mykey", "value2");
