@@ -1,7 +1,15 @@
-var http = require('http');
-var port = process.env.PORT || 1337;
+var httpPort = process.env.PORT || 8080;
+var httpHost = process.env.IP;
+var redisPort = 6379;
+var redisHost = "umento.us";
 
-http.createServer(function(req,res) {
+var http = require('http');
+var redis = require('redis');
+var redisClient = redis.createClient(redisPort, redisHost);
+
+http.createServer(function(req, res) {
+    redisClient.set("mykey", "value2");
+    
     res.writeHead(200, {'Content-Type':'text/plain'});
-    res.end('Hello Universe!\n');
-}).listen(port);
+    res.end('Hello World\n');
+}).listen(httpPort, httpHost);
