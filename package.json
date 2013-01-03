@@ -1,0 +1,16 @@
+{
+  "name": "umento",
+  "description": "Real time Node with Express, Socket.io, and Redis",
+  "author": "Scott Vickers scott.w.vickers@gmail.com",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "~3.0.5",
+    "socket.io": "~0.9.13",
+    "redis": "~0.8.2",
+    "jade": "~0.27.7"
+  }
+}
