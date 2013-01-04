@@ -1,0 +1,8 @@
+# ignore dot files
+.*
+
+# ignore coffeescript
+lib/coffee/
+
+# ignore js warning
+lib/js/readme.txt

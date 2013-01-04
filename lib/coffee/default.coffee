@@ -1,23 +1,30 @@
 
 #class definition
 class ViewModel
-  constructor: (socket) ->
-    @socket = socket
-    @Display = ko.observable()
+  constructor: () ->
+    @socket = null
+    @connected = ko.observable false
+    @Display = ko.observable $("#hdnStartVal").val()
 
     @btnSetVal_Click = =>
       txt = $("#inVal").val()
-      if txt.length > 0
-        @socket.emit "SetVal", "val": txt
-  
+      if txt.length > 0 and @socket?
+        @socket.emit "SetVal", "val":txt
+        
+            
     #initialize socket listeners
-    @socket.on "ClientConnected", (data) =>
-      @Display data.redisVal
-    
-    @socket.on "DataChanged", (data) =>
-      @Display data.redisVal
-
+    @InitSocketIO = (socket) =>
+      @socket = socket
+      @socket.on "connect", =>
+        @connected true
+      
+      @socket.on "disconnect", =>
+        @connected false
+      
+      @socket.on "DataChanged", (data) =>
+        @Display data.val
 
 $ ->
-  ko.ActiveModel = new ViewModel io.connect "#{document.location.host}:#{document.location.port}"
+  ko.ActiveModel = new ViewModel
+  ko.ActiveModel.InitSocketIO io.connect "#{document.location.host}:#{document.location.port}"
   ko.applyBindings ko.ActiveModel
