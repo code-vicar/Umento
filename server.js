@@ -62,27 +62,43 @@ io.configure('production', function() {
   ]);
 });
 
-app.use(express.static(__dirname + '/lib/js'));
+var noCacheResHeaders = {
+  'Pragma':'no-cache',
+  'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
+  'Expires':'0'
+};
 
-app.get("/", function(req, res) {
+app.use('/public', express.static(__dirname + '/public'));
+
+function renderHome(req, res) {
   redisClient.get("mykey", function(err, reply) {
-    
-    res.set({
-      'Pragma':'no-cache',
-      'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
-      'Expires':'0'
-    });
-    
-    res.render("home/default", {
+    res.set(noCacheResHeaders);
+    res.render("default", {
       "title": "Umento",
       "StartVal": reply
     });
-    
   });
+}
+
+function renderAbout(req, res) {
+  res.render("about", {
+    "title":"Umento - About"
+  });
+}
+
+app.get("/", function(req, res) {
+  renderHome(req, res);
+});
+
+app.get("/default", function(req, res) {
+  renderHome(req, res);
+});
+
+app.get("/about", function(req, res) {
+  renderAbout(req, res);
 });
 
 io.sockets.on("connection", function (socket) {
-  
   //listen for "SetVal" emits from the client
   socket.on("SetVal", function(data) {
     console.log("set mykey '" + data.val + "'");
@@ -92,6 +108,4 @@ io.sockets.on("connection", function (socket) {
       io.sockets.emit("DataChanged", { val: reply });  
     });
   });
-
 });
-

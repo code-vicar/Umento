@@ -1,0 +1,4 @@
+button{-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px}
+.primarynav ul{list-style-type:none;margin:0;padding:0;}
+.primarynav ul li{display:inline;margin-right:5px}
+.primarynav ul li:last-child{margin-right:0}

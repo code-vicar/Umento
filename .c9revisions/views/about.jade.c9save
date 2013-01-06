@@ -1,0 +1,2 @@
+{"ts":1357430276109,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
+{"contributors":[],"silentsave":false,"ts":1357430475371,"patch":[[{"diffs":[[1,"extends layout\n\nblock topscripts\n  link(rel=\"stylesheet\", type=\"text/css\", href=\"public/main.css\")\n\nblock content\n  section(class=\"mainsection\")\n      header\n        h1 Jasco Suppies Inc.\n      p founded in 2005, Jasco Supplies is dedicated to bringing fun and engaging web content it's adoring fans."]],"start1":0,"start2":0,"length1":0,"length2":300}]],"length":300,"saved":false}
