@@ -1,29 +1,28 @@
 extends layout
 
 block topscripts
-  link(rel="stylesheet", type="text/css", href="public/main.css")
-  script(src="public/modernizr.js")
-  script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js")
-  script(src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.0.js")
+  link(rel="stylesheet", type="text/css", href="css/main.css")
   script(src="/socket.io/socket.io.js")
-  
-  
-block botscripts
-  script(src="public/default.js")
+
+  script(type="text/html", id="HomeTemplate")
+    <% if (connected === true) { %>
+    div
+      input(id="inVal", type="text")
+      button Set
+    <% } else { %>
+    p Please wait while socket.io connects...
+    <% } %>
+    
+    #data <%= Display %>
+
+  script(data-main="js/default", src="js/require-jquery.js")
+
     
 block content
   section(class="mainsection")
     header
       h1 Socket.io Demo (wasssssup)
 
-    div(data-bind="ifnot: connected") 
-        p Please wait while socket.io connects...
-  
-    div(data-bind="if: connected")
-      div
-        input(id="inVal", type="text")
-        button(id="btnSetVal", data-bind="click: btnSetVal_Click") Set
-    
-    #data(data-bind="text: Display")
+    #ph
   
   input(id="hdnStartVal", type="hidden", value="#{StartVal}")

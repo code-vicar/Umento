@@ -4,3 +4,5 @@
 {"contributors":[],"silentsave":false,"ts":1356207142772,"patch":[[{"diffs":[[0,"\"~0.8.2\""],[1,",\n    \"jade\": \"~0.27.7\""],[0,"\n  }\n}"]],"start1":324,"start2":324,"length1":14,"length2":37}]],"length":361,"saved":false}
 {"contributors":[],"silentsave":false,"ts":1357424912636,"patch":[[{"diffs":[[0,"~0.27.7\""],[1,",\n    \"node-sass\": \"~1.1.62\""],[0,"\n  }\n}"]],"start1":347,"start2":347,"length1":14,"length2":42}]],"length":389,"saved":false}
 {"contributors":[],"silentsave":false,"ts":1357425688867,"patch":[[{"diffs":[[0,"   \""],[-1,"node-sass\": \"~1.1.62"],[1,"stylus\": \"~0.32.0"],[0,"\"\n  "]],"start1":358,"start2":358,"length1":28,"length2":25}]],"length":386,"saved":false}
+{"contributors":[],"silentsave":false,"ts":1357535300554,"patch":[[{"diffs":[[0,"~0.32.0\""],[1,",\n    \"nib\": \"~0.9.1\""],[0,"\n  }\n}"]],"start1":372,"start2":372,"length1":14,"length2":35}]],"length":407,"saved":false}
+{"ts":1357541450108,"patch":[[{"diffs":[[0,"\"~0.9.1\""],[1,",\n    \"connect-coffee-script\": \"~0.0.8\""],[0,"\n  }\n}"]],"start1":393,"start2":393,"length1":14,"length2":53}]],"length":446,"saved":false}

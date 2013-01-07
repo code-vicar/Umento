@@ -1,0 +1,4 @@
+{"ts":1357545402426,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
+{"contributors":[],"silentsave":false,"ts":1357545494115,"patch":[[{"diffs":[[1,"modernizr 2.6.2\nbackbone 0.9.9\njson2 2012-10-08"]],"start1":0,"start2":0,"length1":0,"length2":47}]],"length":47,"saved":false}
+{"ts":1357545523799,"patch":[[{"diffs":[[0,"r 2.6.2\n"],[1,"underscore 1.4.3\n"],[0,"backbone"]],"start1":8,"start2":8,"length1":16,"length2":33}]],"length":64,"saved":false}
+{"ts":1357545790945,"patch":[[{"diffs":[[0,"12-10-08"],[1,"\nrequireJS 2.1.2 + jquery 1.8.3 combined"]],"start1":56,"start2":56,"length1":8,"length2":48}]],"length":104,"saved":false}

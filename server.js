@@ -2,34 +2,66 @@ var http = require('http');
 var redis = require('redis');
 var express = require('express');
 var socketio = require('socket.io');
+var stylus = require('stylus');
+var nib = require('nib');
+var cnCoffeeScript = require('connect-coffee-script');
 
 var app = express();
 var server = http.createServer(app);
 
-app.configure(function() {
-  app.set('title', 'Try Umento');
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');  
-});
+function compileStyl(str, path) {
+  return stylus(str)
+    .set('filename', path)
+    .use(nib());
+}
+
+var stylusMiddlewareOptions;
 
 //c9.io umento development settings
 app.configure('development', function() {
   console.log("in development");
   app.set("umento_httpPort", process.env.PORT || 8080);
-  app.set("umento_redisHost", "umento.us");
+  app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
   app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
+  stylusMiddlewareOptions = {
+    debug: true,
+    src: __dirname + '/lib',
+    dest: __dirname + '/public',
+    compile: compileStyl
+  };
 });
 
 //app fog umento.hp.af.cm production settings
 app.configure('production', function() {
   console.log("in production");
   var servicesEnv = JSON.parse(process.env.VCAP_SERVICES);
-  var redisCreds = servicesEnv["redis-2.2"][0]["credentials"];
+  var redisCreds = servicesEnv["redis-2.2"][0].credentials;
   app.set("umento_httpPort", process.env.VCAP_APP_PORT);
   app.set("umento_redisHost", redisCreds.host);
   app.set("umento_redisPort", redisCreds.port);
   app.set("umento_redisAuth", redisCreds.password);
+  stylusMiddlewareOptions = {
+    src: __dirname + '/lib',
+    dest: __dirname + '/public',
+    compile: compileStyl
+  };
+});
+
+//general configurations
+app.configure(function() {
+  app.set('title', 'Try Umento');
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  
+  app.use(stylus.middleware(stylusMiddlewareOptions));
+  
+  app.use(cnCoffeeScript({
+   src: __dirname + '/lib',
+   dest: __dirname + '/public'
+  }));
+  
+  app.use(express.static(__dirname + '/public'));
 });
 
 console.log("redis host: " + app.get("umento_redisHost"));
@@ -67,8 +99,6 @@ var noCacheResHeaders = {
   'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
   'Expires':'0'
 };
-
-app.use('/public', express.static(__dirname + '/public'));
 
 function renderHome(req, res) {
   redisClient.get("mykey", function(err, reply) {

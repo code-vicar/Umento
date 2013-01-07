@@ -1,0 +1,17 @@
+button {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.primarynav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.primarynav ul li {
+  display: inline;
+  margin-right: 5px;
+}
+.primarynav ul li:last-child {
+  margin-right: 0px;
+}
