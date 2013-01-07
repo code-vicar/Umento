@@ -16,15 +16,23 @@ define 'UmentoApp', [
       
       initialize: ->
         
+        @EmitVal = ->
+          txt = $('#inVal').val()
+          if txt.length > 0 and window.socket?
+            window.socket.emit 'SetVal', val:txt
+        
         @model.on 'change', ->
           @render()
         , @
         
       events:
-        'click button': ->
-          txt = $('#inVal').val()
-          if txt.length > 0 and window.socket?
-            window.socket.emit 'SetVal', val:txt
+        'click a': (e) ->
+          e.preventDefault()
+          @EmitVal()
+        'keypress': (e) ->
+          if e.which is 13
+            e.preventDefault()
+            @EmitVal()
     
       render: ->
         template = _.template $("#HomeTemplate").html(), @model.toJSON()

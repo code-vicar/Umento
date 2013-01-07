@@ -8,7 +8,8 @@ block topscripts
     <% if (connected === true) { %>
     div
       input(id="inVal", type="text")
-      button Set
+      a(href="#", class="button")
+        span Submit
     <% } else { %>
     p Please wait while socket.io connects...
     <% } %>
@@ -24,5 +25,7 @@ block content
       h1 Socket.io Demo (wasssssup)
 
     #ph
+  aside(class="mainaside")
+    p I'm an aside!
   
   input(id="hdnStartVal", type="hidden", value="#{StartVal}")

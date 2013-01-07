@@ -33,19 +33,29 @@
       HomeView.prototype.tagName = "div";
 
       HomeView.prototype.initialize = function() {
-        return this.model.on('change', function() {
-          return this.render();
-        }, this);
-      };
-
-      HomeView.prototype.events = {
-        'click button': function() {
+        this.EmitVal = function() {
           var txt;
           txt = $('#inVal').val();
           if (txt.length > 0 && (window.socket != null)) {
             return window.socket.emit('SetVal', {
               val: txt
             });
+          }
+        };
+        return this.model.on('change', function() {
+          return this.render();
+        }, this);
+      };
+
+      HomeView.prototype.events = {
+        'click a': function(e) {
+          e.preventDefault();
+          return this.EmitVal();
+        },
+        'keypress': function(e) {
+          if (e.which === 13) {
+            e.preventDefault();
+            return this.EmitVal();
           }
         }
       };

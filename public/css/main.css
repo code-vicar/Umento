@@ -1,7 +1,194 @@
-button {
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+body {
+  width: 100%;
+  *zoom: 1;
+}
+body:before,
+body:after {
+  content: "";
+  display: table;
+}
+body:after {
+  clear: both;
+}
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-family: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+body {
+  line-height: 1;
+  color: #000;
+  background: #fff;
+}
+ol,
+ul {
+  list-style: none;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  vertical-align: middle;
+}
+caption,
+th,
+td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+a img {
+  border: none;
+}
+input[type="text"] {
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+a {
+  outline: none;
+  text-decoration: none;
+}
+a img {
+  border: none;
+}
+a:link,
+a:visited {
+  outline: none;
+  text-decoration: none;
+  color: #fff;
+  border: none;
+}
+.button {
+  display: inline-block;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 4px 0 #823a17, 0 8px 13.333333333333334px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 0 #823a17, 0 8px 13.333333333333334px rgba(0,0,0,0.5);
+  -webkit-transition-property: all 0.2s ease-in-out 0s;
+  -moz-transition-property: all 0.2s ease-in-out 0s;
+  -o-transition-property: all 0.2s ease-in-out 0s;
+  -ms-transition-property: all 0.2s ease-in-out 0s;
+  transition-property: all 0.2s ease-in-out 0s;
+  margin: 10px;
+}
+.button span {
+  display: inline-block;
+  padding: 6px 13.333333333333334px;
+  font-family: Verdana, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow: 0 -1px 1px rgba(19,65,88,0.8);
+  background: #bb5422;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fa8246), color-stop(1, #bb5422));
+  background: -webkit-linear-gradient(top, #fa8246 0%, #bb5422 100%);
+  background: -moz-linear-gradient(top, #fa8246 0%, #bb5422 100%);
+  background: -o-linear-gradient(top, #fa8246 0%, #bb5422 100%);
+  background: -ms-linear-gradient(top, #fa8246 0%, #bb5422 100%);
+  background: linear-gradient(top, #fa8246 0%, #bb5422 100%);
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0 -1px 1px rgba(255,255,255,0.1);
+  box-shadow: inset 0 -1px 1px rgba(255,255,255,0.1);
+  -webkit-transition-property: all 0.2s ease-in-out 0s;
+  -moz-transition-property: all 0.2s ease-in-out 0s;
+  -o-transition-property: all 0.2s ease-in-out 0s;
+  -ms-transition-property: all 0.2s ease-in-out 0s;
+  transition-property: all 0.2s ease-in-out 0s;
+}
+.button:active {
+  -webkit-box-shadow: 0 4px 0 #823a17, 0 6px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 0 #823a17, 0 6px 12px rgba(0,0,0,0.3);
+}
+.button:active span {
+  -webkit-transform: translate(0, 2.6666666666666665px);
+  -moz-transform: translate(0, 2.6666666666666665px);
+  -o-transform: translate(0, 2.6666666666666665px);
+  -ms-transform: translate(0, 2.6666666666666665px);
+  transform: translate(0, 2.6666666666666665px);
+}
+.button:focus {
+  outline: #ff0 dotted thin;
+}
+.mainheader {
+  display: inline;
+  float: left;
+  width: 97.91666666666666%;
+  margin: 0 1.0416666666666665%;
+}
+.mainheader h1 {
+  font: bold 12px Verdana, sans-serif;
+  color: #717165;
+  text-transform: uppercase;
+}
+.primarynav {
+  display: inline;
+  float: left;
+  width: 97.91666666666666%;
+  margin: 0 1.0416666666666665%;
 }
 .primarynav ul {
   list-style-type: none;
@@ -14,4 +201,33 @@ button {
 }
 .primarynav ul li:last-child {
   margin-right: 0px;
+}
+.mainsection {
+  display: inline;
+  float: left;
+  width: 72.91666666666666%;
+  margin: 0 1.0416666666666665%;
+h1
+}
+.mainaside {
+  display: inline;
+  float: left;
+  width: 22.916666666666664%;
+  margin: 0 1.0416666666666665%;
+}
+.mainfooter {
+  display: inline;
+  float: left;
+  width: 97.91666666666666%;
+  margin: 0 1.0416666666666665%;
+}
+@media screen and (max-width: 720px) {
+  .mainsection,
+  .mainaside {
+    display: inline;
+    float: left;
+    width: 97.91666666666666%;
+    margin: 0 1.0416666666666665%;
+    margin-bottom: 1em;
+  }
 }

@@ -4,7 +4,7 @@ html
     title #{title}
     block topscripts
   body
-    header
+    header(class="mainheader")
       h1 Monumentous, the portmanteau for awesome peoples!
     nav(class="primarynav")
       ul
@@ -14,5 +14,5 @@ html
           a(href="about") About
     block content
     
-    footer Mon.umento.us&copy; is a product of Jasco Supplies Inc.&trade;
+    footer(class="mainfooter") Mon.umento.us&copy; is a product of Jasco Supplies Inc.&trade;
   block botscripts
