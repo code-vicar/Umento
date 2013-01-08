@@ -19,14 +19,26 @@
 
   require(["jquery", "modernizr", "UmentoApp"], function($, mod, um) {
     return $(function() {
-      var home, homeView,
+      var home, homeView, messages, messagesView,
         _this = this;
       window.socket = io.connect("" + document.location.host + ":" + document.location.port);
-      home = new um.bbHome({});
-      homeView = new um.bbHomeView({
-        model: home
+      messages = new um.Messages([
+        {
+          nickname: 'Scott',
+          message: 'Hi, my name is Scott'
+        }, {
+          nickname: '',
+          message: 'anonymous message'
+        }
+      ]);
+      messagesView = new um.MessagesView({
+        collection: messages
       });
-      homeView.render();
+      home = new um.Home({});
+      homeView = new um.HomeView({
+        model: home,
+        MessagesView: messagesView
+      });
       $('#ph').html(homeView.el);
       socket.on("connect", function() {
         return home.set({

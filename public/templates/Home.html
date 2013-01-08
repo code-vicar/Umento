@@ -1,0 +1,14 @@
+<% if (connected === true) { %>
+<div>
+  <input id="inVal" type="text" />
+  <a href="#" class="button">
+    <span>Submit</span>
+  </a>
+</div>
+<% } else { %>
+  <p>
+    Please wait while socket.io connects...
+  </p>
+<% } %>
+<section class="messages">
+</section>

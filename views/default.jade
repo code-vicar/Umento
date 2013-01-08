@@ -4,27 +4,15 @@ block topscripts
   link(rel="stylesheet", type="text/css", href="css/main.css")
   script(src="/socket.io/socket.io.js")
 
-  script(type="text/html", id="HomeTemplate")
-    <% if (connected === true) { %>
-    div
-      input(id="inVal", type="text")
-      a(href="#", class="button")
-        span Submit
-    <% } else { %>
-    p Please wait while socket.io connects...
-    <% } %>
-    
-    #data <%= Display %>
-
   script(data-main="js/default", src="js/require.js")
 
-    
 block content
   section(class="mainsection")
     header
       h1 Socket.io Demo (wasssssup)
 
     #ph
+
   aside(class="mainaside")
     p I'm an aside!
   
