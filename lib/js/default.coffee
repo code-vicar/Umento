@@ -1,5 +1,8 @@
 require.config
   shim:
+    'jquery':
+      deps: []
+      exports: '$'
     'underscore':
       deps: ['json2', 'jquery']
       exports: '_'
