@@ -37,27 +37,30 @@ define 'UmentoApp', [
     class MessagesView extends UmView
       tagName: "section"
       
+      AddOne: (message) ->
+        mView = new MessageView model:message
+        @$el.append(mView.el)
+        
+      AddAll: ->
+        @$el.empty()
+        @collection.each @AddOne
+      
       initialize: ->
-        @collection.on 'change', ->
-          @render
-        , @
-
+        @AddOne = _.bind @AddOne, @
+        @AddAll = _.bind @AddAll, @
+        
+        @collection.on 'reset', @AddAll
+        @collection.on 'add', @AddOne
         @render()
 
       render: ->
-        @$el.empty()
-        @collection.each _.bind (message, index) ->
-          mView = new MessageView model:message
-          @$el.append(mView.el)
-        , @
-        
+        @AddAll()
         return @
 
-  
     class Home extends Backbone.Model
       defaults: ->
-        'Display': $('#hdnStartVal').val()
         'connected': false
+        'connectedUsers': 0
 
     class HomeView extends UmView
       tagName: "div"
@@ -66,6 +69,8 @@ define 'UmentoApp', [
         _.template tmpHome, @model.toJSON()
 
       initialize: (options) ->
+        @EmitVal = _.bind @EmitVal, @
+        
         @MessagesView = options.MessagesView
         
         @model.on 'change', ->
@@ -75,9 +80,13 @@ define 'UmentoApp', [
         @render()
 
       EmitVal: ->
-        txt = $('#inVal').val()
+        nPut = $('#inVal') 
+        txt = nPut.val()
         if txt.length > 0 and window.socket?
-          window.socket.emit 'SetVal', val:txt
+          msg = nickname:'', message:txt
+          window.socket.emit 'chatMessage', msg
+          @MessagesView.collection.add new Message msg
+          nPut.val("")
 
       events:
         'click a': (e) ->

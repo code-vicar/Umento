@@ -100,11 +100,16 @@ var noCacheResHeaders = {
 };
 
 function renderHome(req, res) {
-  redisClient.get("mykey", function(err, reply) {
+  redisClient.lrange("chatMessages", 0, -1, function(err, reply) {
+    reply = reply ? reply : [];
+    var msgs = [];
+    reply.forEach(function(msg){
+      msgs.push(JSON.parse(msg));
+    });
     res.set(noCacheResHeaders);
     res.render("default", {
       "title": "Umento",
-      "StartVal": reply
+      "StartVal": JSON.stringify({messages:msgs})
     });
   });
 }
@@ -127,14 +132,26 @@ app.get("/about", function(req, res) {
   renderAbout(req, res);
 });
 
+var userCount = 0;
 io.sockets.on("connection", function (socket) {
+  userCount += 1;
+  
+  io.sockets.emit("connectedUsers", {count: userCount});
+  
   //listen for "SetVal" emits from the client
-  socket.on("SetVal", function(data) {
-    console.log("set mykey '" + data.val + "'");
-    redisClient.set("mykey", data.val);
-    
-    redisClient.get("mykey", function(err, reply) {
-      io.sockets.emit("DataChanged", { val: reply });  
+  socket.on("chatMessage", function(data) {
+    redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
+      redisClient.ltrim("chatMessages", 0, 9, function(err, reply) {
+        //console.log(err);
+      });
     });
+    
+    socket.broadcast.emit("chatMessage", data);
+  });
+  
+  socket.on("disconnect", function() {
+    userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
+    
+    io.sockets.emit("connectedUsers", {count: userCount});
   });
 });

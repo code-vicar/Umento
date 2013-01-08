@@ -18,19 +18,22 @@ require [
   ], ($, mod, um) ->
     $ ->
       window.socket = io.connect "#{document.location.host}:#{document.location.port}"
-      messages = new um.Messages [{nickname:'Scott', message:'Hi, my name is Scott'}, {nickname:'', message:'anonymous message'}]
+      seedData = JSON.parse $("#hdnStartVal").val()
+      messages = new um.Messages seedData.messages
       messagesView = new um.MessagesView collection:messages
       
+      #window.messages = messages
       home = new um.Home({})
-      homeView = new um.HomeView model:home, MessagesView:messagesView
-      
-      $('#ph').html(homeView.el);
+      homeView = new um.HomeView el:$('.mainsection'), model:home, MessagesView:messagesView
       
       socket.on "connect", =>
         home.set connected: true
       
       socket.on "disconnect", =>
         home.set connected: false
+        
+      socket.on "connectedUsers", (data) =>
+        home.set connectedUsers: data.count
       
-      socket.on "DataChanged", (data) =>
-        home.set Display: data.val
+      socket.on "chatMessage", (data) =>
+        messages.add data

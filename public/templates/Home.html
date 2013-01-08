@@ -1,3 +1,23 @@
+<header>
+  <h1>
+    Socket.io Demo, connected users:
+    <%
+      if (connectedUsers <= 0) {
+        print('0');
+      } else if (connectedUsers === 1) {
+        print('you');
+      } else {
+        var others = connectedUsers - 1;
+        if (others === 1) {
+          print('you and 1 other user');
+        } else {
+          print('you and ' + others + ' other users');
+        }
+      }
+    %>
+  </h1>
+</header>
+
 <% if (connected === true) { %>
 <div>
   <input id="inVal" type="text" />

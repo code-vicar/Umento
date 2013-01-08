@@ -84,22 +84,29 @@
 
       MessagesView.prototype.tagName = "section";
 
+      MessagesView.prototype.AddOne = function(message) {
+        var mView;
+        mView = new MessageView({
+          model: message
+        });
+        return this.$el.append(mView.el);
+      };
+
+      MessagesView.prototype.AddAll = function() {
+        this.$el.empty();
+        return this.collection.each(this.AddOne);
+      };
+
       MessagesView.prototype.initialize = function() {
-        this.collection.on('change', function() {
-          return this.render;
-        }, this);
+        this.AddOne = _.bind(this.AddOne, this);
+        this.AddAll = _.bind(this.AddAll, this);
+        this.collection.on('reset', this.AddAll);
+        this.collection.on('add', this.AddOne);
         return this.render();
       };
 
       MessagesView.prototype.render = function() {
-        this.$el.empty();
-        this.collection.each(_.bind(function(message, index) {
-          var mView;
-          mView = new MessageView({
-            model: message
-          });
-          return this.$el.append(mView.el);
-        }, this));
+        this.AddAll();
         return this;
       };
 
@@ -116,8 +123,8 @@
 
       Home.prototype.defaults = function() {
         return {
-          'Display': $('#hdnStartVal').val(),
-          'connected': false
+          'connected': false,
+          'connectedUsers': 0
         };
       };
 
@@ -139,6 +146,7 @@
       };
 
       HomeView.prototype.initialize = function(options) {
+        this.EmitVal = _.bind(this.EmitVal, this);
         this.MessagesView = options.MessagesView;
         this.model.on('change', function() {
           return this.render();
@@ -147,12 +155,17 @@
       };
 
       HomeView.prototype.EmitVal = function() {
-        var txt;
-        txt = $('#inVal').val();
+        var msg, nPut, txt;
+        nPut = $('#inVal');
+        txt = nPut.val();
         if (txt.length > 0 && (window.socket != null)) {
-          return window.socket.emit('SetVal', {
-            val: txt
-          });
+          msg = {
+            nickname: '',
+            message: txt
+          };
+          window.socket.emit('chatMessage', msg);
+          this.MessagesView.collection.add(new Message(msg));
+          return nPut.val("");
         }
       };
 
