@@ -27,14 +27,18 @@ require [
       connectedUsersView = new um.ConnectedUsersView model:home
       homeView = new um.HomeView el:$('.mainsection'), model:home, ConnectedUsersView:connectedUsersView, MessagesView:messagesView
       
-      socket.on "connect", =>
+      $(window).on 'beforeunload', ->
+        window.socket.disconnect()
+        return
+        
+      socket.on "connect", ->
         home.set connected: true
       
-      socket.on "disconnect", =>
+      socket.on "disconnect", ->
         home.set connected: false
         
-      socket.on "connectedUsers", (data) =>
+      socket.on "connectedUsers", (data) ->
         home.set connectedUsers: data.count
       
-      socket.on "chatMessage", (data) =>
+      socket.on "chatMessage", (data) ->
         messages.add data

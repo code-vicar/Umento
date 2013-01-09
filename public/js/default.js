@@ -19,8 +19,7 @@
 
   require(["jquery", "modernizr", "UmentoApp"], function($, mod, um) {
     return $(function() {
-      var connectedUsersView, home, homeView, messages, messagesView, seedData,
-        _this = this;
+      var connectedUsersView, home, homeView, messages, messagesView, seedData;
       window.socket = io.connect("" + document.location.host + ":" + document.location.port);
       seedData = JSON.parse($("#hdnStartVal").val());
       messages = new um.Messages(seedData.messages);
@@ -36,6 +35,9 @@
         model: home,
         ConnectedUsersView: connectedUsersView,
         MessagesView: messagesView
+      });
+      $(window).on('beforeunload', function() {
+        window.socket.disconnect();
       });
       socket.on("connect", function() {
         return home.set({
