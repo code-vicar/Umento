@@ -24,7 +24,8 @@ require [
       
       #window.messages = messages
       home = new um.Home({})
-      homeView = new um.HomeView el:$('.mainsection'), model:home, MessagesView:messagesView
+      connectedUsersView = new um.ConnectedUsersView model:home
+      homeView = new um.HomeView el:$('.mainsection'), model:home, ConnectedUsersView:connectedUsersView, MessagesView:messagesView
       
       socket.on "connect", =>
         home.set connected: true

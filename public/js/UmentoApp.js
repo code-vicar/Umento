@@ -2,8 +2,8 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('UmentoApp', ["jquery", "json2", "underscore", "backbone", "text!../../templates/Home.html", "text!../../templates/Message.html"], function($, JSON, _, Backbone, tmpHome, tmpMessage) {
-    var Home, HomeView, Message, MessageView, Messages, MessagesView, UmView;
+  define('UmentoApp', ["jquery", "json2", "underscore", "backbone", "text!../../templates/Home.html", "text!../../templates/Message.html", "text!../../templates/ConnectedUsers.html"], function($, JSON, _, Backbone, tmpHome, tmpMessage, tmpConUsers) {
+    var ConnectedUsersView, Home, HomeView, Message, MessageView, Messages, MessagesView, UmView;
     UmView = (function(_super) {
 
       __extends(UmView, _super);
@@ -131,6 +131,35 @@
       return Home;
 
     })(Backbone.Model);
+    ConnectedUsersView = (function(_super) {
+
+      __extends(ConnectedUsersView, _super);
+
+      function ConnectedUsersView() {
+        return ConnectedUsersView.__super__.constructor.apply(this, arguments);
+      }
+
+      ConnectedUsersView.prototype.tagName = "h1";
+
+      ConnectedUsersView.prototype.template = function() {
+        return _.template(tmpConUsers, this.model.toJSON());
+      };
+
+      ConnectedUsersView.prototype.initialize = function() {
+        this.model.on('change:connectedUsers', function() {
+          return this.render();
+        }, this);
+        return this.render();
+      };
+
+      ConnectedUsersView.prototype.render = function() {
+        this.$el.html(this.template());
+        return this;
+      };
+
+      return ConnectedUsersView;
+
+    })(UmView);
     HomeView = (function(_super) {
 
       __extends(HomeView, _super);
@@ -147,8 +176,9 @@
 
       HomeView.prototype.initialize = function(options) {
         this.EmitVal = _.bind(this.EmitVal, this);
+        this.ConnectedUsersView = options.ConnectedUsersView;
         this.MessagesView = options.MessagesView;
-        this.model.on('change', function() {
+        this.model.on('change:connected', function() {
           return this.render();
         }, this);
         return this.render();
@@ -184,6 +214,7 @@
 
       HomeView.prototype.render = function() {
         this.$el.html(this.template());
+        this.assign(this.ConnectedUsersView, ".connectedUsers");
         this.assign(this.MessagesView, ".messages");
         return this;
       };
@@ -198,6 +229,7 @@
       Messages: Messages,
       MessagesView: MessagesView,
       Home: Home,
+      ConnectedUsersView: ConnectedUsersView,
       HomeView: HomeView
     };
   });

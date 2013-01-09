@@ -19,7 +19,7 @@
 
   require(["jquery", "modernizr", "UmentoApp"], function($, mod, um) {
     return $(function() {
-      var home, homeView, messages, messagesView, seedData,
+      var connectedUsersView, home, homeView, messages, messagesView, seedData,
         _this = this;
       window.socket = io.connect("" + document.location.host + ":" + document.location.port);
       seedData = JSON.parse($("#hdnStartVal").val());
@@ -28,9 +28,13 @@
         collection: messages
       });
       home = new um.Home({});
+      connectedUsersView = new um.ConnectedUsersView({
+        model: home
+      });
       homeView = new um.HomeView({
         el: $('.mainsection'),
         model: home,
+        ConnectedUsersView: connectedUsersView,
         MessagesView: messagesView
       });
       socket.on("connect", function() {

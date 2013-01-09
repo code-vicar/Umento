@@ -5,7 +5,8 @@ define 'UmentoApp', [
   "backbone"
   "text!../../templates/Home.html"
   "text!../../templates/Message.html"
-  ], ($, JSON, _, Backbone, tmpHome, tmpMessage) ->
+  "text!../../templates/ConnectedUsers.html"
+  ], ($, JSON, _, Backbone, tmpHome, tmpMessage, tmpConUsers) ->
 
     class UmView extends Backbone.View
       assign: (view, selector) ->
@@ -61,6 +62,22 @@ define 'UmentoApp', [
       defaults: ->
         'connected': false
         'connectedUsers': 0
+        
+    class ConnectedUsersView extends UmView
+      tagName: "h1"
+      
+      template: ->
+        _.template tmpConUsers, @model.toJSON()
+        
+      initialize: ->
+        @model.on 'change:connectedUsers', ->
+          @render()
+        , @
+        @render()
+        
+      render: ->
+        @$el.html @template()
+        return @
 
     class HomeView extends UmView
       tagName: "div"
@@ -71,9 +88,10 @@ define 'UmentoApp', [
       initialize: (options) ->
         @EmitVal = _.bind @EmitVal, @
         
+        @ConnectedUsersView = options.ConnectedUsersView
         @MessagesView = options.MessagesView
         
-        @model.on 'change', ->
+        @model.on 'change:connected', ->
           @render()
         , @
 
@@ -100,6 +118,7 @@ define 'UmentoApp', [
       render: ->
         @$el.html @template()
 
+        @assign(@ConnectedUsersView, ".connectedUsers")
         @assign(@MessagesView, ".messages")
 
         return @
@@ -110,4 +129,5 @@ define 'UmentoApp', [
     Messages:Messages
     MessagesView:MessagesView
     Home:Home
+    ConnectedUsersView:ConnectedUsersView
     HomeView:HomeView
