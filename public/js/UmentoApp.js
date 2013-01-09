@@ -89,7 +89,7 @@
         mView = new MessageView({
           model: message
         });
-        return this.$el.append(mView.el);
+        return this.$el.prepend(mView.el);
       };
 
       MessagesView.prototype.AddAll = function() {

@@ -104,7 +104,7 @@ function renderHome(req, res) {
     reply = reply ? reply : [];
     var msgs = [];
     reply.forEach(function(msg){
-      msgs.push(JSON.parse(msg));
+      msgs.unshift(JSON.parse(msg));
     });
     res.set(noCacheResHeaders);
     res.render("default", {

@@ -39,7 +39,7 @@ define 'UmentoApp', [
       
       AddOne: (message) ->
         mView = new MessageView model:message
-        @$el.append(mView.el)
+        @$el.prepend(mView.el)
         
       AddAll: ->
         @$el.empty()
