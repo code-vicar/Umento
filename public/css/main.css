@@ -101,12 +101,6 @@ td {
 a img {
   border: none;
 }
-input[type="text"] {
-  -webkit-border-radius: 7px;
-  border-radius: 7px;
-  -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.5);
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
-}
 a {
   outline: none;
   text-decoration: none;
@@ -120,6 +114,12 @@ a:visited {
   text-decoration: none;
   color: #fff;
   border: none;
+}
+input[type="text"] {
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
 }
 .button {
   display: inline-block;
@@ -205,14 +205,7 @@ a:visited {
 .mainsection {
   display: inline;
   float: left;
-  width: 72.91666666666666%;
-  margin: 0 1.0416666666666665%;
-h1
-}
-.mainaside {
-  display: inline;
-  float: left;
-  width: 22.916666666666664%;
+  width: 97.91666666666666%;
   margin: 0 1.0416666666666665%;
 }
 .mainfooter {
@@ -221,9 +214,61 @@ h1
   width: 97.91666666666666%;
   margin: 0 1.0416666666666665%;
 }
+.messages {
+  padding: 10px;
+  border: solid #bb5422 2px;
+  -webkit-box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
+  background-color: #fff;
+}
+.message {
+  *zoom: 1;
+}
+.message:before,
+.message:after {
+  content: "";
+  display: table;
+}
+.message:after {
+  clear: both;
+}
+.nickname {
+  font-family: Verdana, sans-serif;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: -1px 0 1px rgba(0,0,0,0.5);
+  display: block;
+}
+.ts {
+  font-size: 8px;
+  color: #fff;
+}
+.messageHead,
+.messageText {
+  float: left;
+}
+.messageHead {
+  padding: 8px;
+  min-width: 80px;
+  background: -webkit-gradient(linear, left top, right top, color-stop(0, #77a6f7), color-stop(0.33333333333333326, #42679e), color-stop(1, #0b4a8a));
+  background: -webkit-linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
+  background: -moz-linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
+  background: -o-linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
+  background: -ms-linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
+  background: linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
+  border: solid 1px #0b4a8a;
+  -webkit-border-top-left-radius: 7px;
+  border-top-left-radius: 7px;
+  -webkit-border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
+}
+.messageText {
+  margin-left: 5px;
+  line-height: 2;
+}
 @media screen and (max-width: 720px) {
-  .mainsection,
-  .mainaside {
+  .mainsection {
+    margin-left: 1.0416666666666665%;
     display: inline;
     float: left;
     width: 97.91666666666666%;

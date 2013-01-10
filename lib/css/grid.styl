@@ -54,7 +54,7 @@ column(x, columns = columns)
   // *margin 0 total-width * ((gutter-width * 0.5) / gridsystem-width) - correction
 
 offset(offby=1)
-  margin-left total-width * (((gutter-width + column-width) * offset + (gutter-width * 0.5))/gridsystem-width)
+  margin-left total-width * (((gutter-width + column-width) * offby + (gutter-width * 0.5))/gridsystem-width)
 
 /* cause problems with nib (nib ovverides 'push' and 'pull' functions)
 push(offset = 1)

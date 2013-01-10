@@ -1,8 +1,15 @@
-<% if (nickname) { %>
-<header class="nickname">
-  <%= nickname %>
-</header>
-<% } %>
-<p class="message">
+<section class="messageHead">
+  <% if (nickname) { %>
+  <span class="nickname">
+    <%= nickname %>
+  </span>
+  <% } %>
+  <% if (ts) { %>
+  <span class="ts">
+    <%= moment(ts).format("MMM Do YYYY, h:mma") %>
+  </span>
+  <% } %>
+</section>
+<p class="messageText">
   <%= message %>
 </p>

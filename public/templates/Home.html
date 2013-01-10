@@ -5,12 +5,19 @@
 </header>
 
 <% if (connected === true) { %>
-<div>
-  <input id="inVal" type="text" />
-  <a href="#" class="button">
-    <span>Submit</span>
-  </a>
-</div>
+<table>
+  <tr>
+    <td style="width:100%">
+      <input id="inVal" style="width:100%" type="text" />
+    </td>
+    <td>
+      <a href="#" class="button">
+        <span>Submit</span>
+      </a>
+    </td>
+  </tr>
+</table>
+
 <% } else { %>
   <p>
     Please wait while socket.io connects...

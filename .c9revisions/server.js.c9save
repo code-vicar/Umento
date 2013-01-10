@@ -109,3 +109,6 @@
 {"ts":1357686272466,"patch":[[{"diffs":[[0,"        "],[1,"//"],[0,"console."]],"start1":4066,"start2":4066,"length1":16,"length2":18}]],"length":4345,"saved":false}
 {"ts":1357700725955,"patch":[[{"diffs":[[0,"sClient."],[-1,"l"],[1,"r"],[0,"push(\"ch"]],"start1":3922,"start2":3922,"length1":17,"length2":17}]],"length":4345,"saved":false}
 {"ts":1357700886128,"patch":[[{"diffs":[[0,"   msgs."],[-1,"push"],[1,"unshift"],[0,"(JSON.pa"]],"start1":3188,"start2":3188,"length1":20,"length2":23},{"diffs":[[0,"sClient."],[-1,"r"],[1,"l"],[0,"push(\"ch"]],"start1":3925,"start2":3925,"length1":17,"length2":17}]],"length":4348,"saved":false}
+{"ts":1357757337792,"patch":[[{"diffs":[[0,"cript');"],[1,"\nvar moment = require('public/js/moment');"],[0,"\n\nvar ap"]],"start1":233,"start2":233,"length1":16,"length2":58}]],"length":4390,"saved":false}
+{"ts":1357758643088,"patch":[[{"diffs":[[0,") {\n"],[-1,"        //console.log(err);\n"],[0,"    "]],"start1":4107,"start2":4107,"length1":36,"length2":8}]],"length":4362,"saved":false}
+{"ts":1357763146703,"patch":[[{"diffs":[[0,"e-script');\n"],[1,"//"],[0,"var moment ="]],"start1":230,"start2":230,"length1":24,"length2":26}]],"length":4364,"saved":false}

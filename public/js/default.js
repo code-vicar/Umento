@@ -13,6 +13,10 @@
       'backbone': {
         deps: ['underscore', 'json2', 'jquery'],
         exports: 'Backbone'
+      },
+      'moment': {
+        deps: [],
+        exports: 'moment'
       }
     }
   });
@@ -20,7 +24,9 @@
   require(["jquery", "modernizr", "UmentoApp"], function($, mod, um) {
     return $(function() {
       var connectedUsersView, home, homeView, messages, messagesView, seedData;
-      window.socket = io.connect("" + document.location.host + ":" + document.location.port);
+      window.socket = io.connect("" + document.location.host + ":" + document.location.port, {
+        'sync disconnect on unload': true
+      });
       seedData = JSON.parse($("#hdnStartVal").val());
       messages = new um.Messages(seedData.messages);
       messagesView = new um.MessagesView({
@@ -35,9 +41,6 @@
         model: home,
         ConnectedUsersView: connectedUsersView,
         MessagesView: messagesView
-      });
-      $(window).on('beforeunload', function() {
-        window.socket.disconnect();
       });
       socket.on("connect", function() {
         return home.set({

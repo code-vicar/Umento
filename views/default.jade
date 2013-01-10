@@ -3,13 +3,9 @@ extends layout
 block topscripts
   link(rel="stylesheet", type="text/css", href="css/main.css")
   script(src="/socket.io/socket.io.js")
-
   script(data-main="js/default", src="js/require.js")
 
 block content
   section(class="mainsection")
 
-  aside(class="mainaside")
-    p I'm an aside!
-  
   input(id="hdnStartVal", type="hidden", value="#{StartVal}")

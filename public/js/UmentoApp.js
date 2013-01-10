@@ -2,7 +2,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('UmentoApp', ["jquery", "json2", "underscore", "backbone", "text!../../templates/Home.html", "text!../../templates/Message.html", "text!../../templates/ConnectedUsers.html"], function($, JSON, _, Backbone, tmpHome, tmpMessage, tmpConUsers) {
+  define('UmentoApp', ["jquery", "json2", "underscore", "backbone", "moment", "text!../../templates/Home.html", "text!../../templates/Message.html", "text!../../templates/ConnectedUsers.html"], function($, JSON, _, Backbone, moment, tmpHome, tmpMessage, tmpConUsers) {
     var ConnectedUsersView, Home, HomeView, Message, MessageView, Messages, MessagesView, UmView;
     UmView = (function(_super) {
 
@@ -27,6 +27,14 @@
         return Message.__super__.constructor.apply(this, arguments);
       }
 
+      Message.prototype.defaults = function() {
+        return {
+          ts: moment().format("YYYY-MM-DDTHH:mm:ss"),
+          nickname: "Guest",
+          message: ""
+        };
+      };
+
       return Message;
 
     })(Backbone.Model);
@@ -39,6 +47,8 @@
       }
 
       MessageView.prototype.tagName = "article";
+
+      MessageView.prototype.className = "message";
 
       MessageView.prototype.template = function() {
         return _.template(tmpMessage, this.model.toJSON());
@@ -190,7 +200,7 @@
         txt = nPut.val();
         if (txt.length > 0 && (window.socket != null)) {
           msg = {
-            nickname: '',
+            ts: moment().format("YYYY-MM-DDTHH:mm:ss"),
             message: txt
           };
           window.socket.emit('chatMessage', msg);

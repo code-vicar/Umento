@@ -3,19 +3,25 @@ define 'UmentoApp', [
   "json2"
   "underscore"
   "backbone"
+  "moment"
   "text!../../templates/Home.html"
   "text!../../templates/Message.html"
   "text!../../templates/ConnectedUsers.html"
-  ], ($, JSON, _, Backbone, tmpHome, tmpMessage, tmpConUsers) ->
+  ], ($, JSON, _, Backbone, moment, tmpHome, tmpMessage, tmpConUsers) ->
 
     class UmView extends Backbone.View
       assign: (view, selector) ->
         view.setElement(@$(selector)).render()
 
     class Message extends Backbone.Model
+      defaults: ->
+        ts:moment().format("YYYY-MM-DDTHH:mm:ss")
+        nickname:"Guest"
+        message:""
 
     class MessageView extends UmView
       tagName: "article"
+      className:"message"
 
       template: ->
         _.template tmpMessage, @model.toJSON()
@@ -101,7 +107,12 @@ define 'UmentoApp', [
         nPut = $('#inVal') 
         txt = nPut.val()
         if txt.length > 0 and window.socket?
-          msg = nickname:'', message:txt
+          msg = ts:moment().format("YYYY-MM-DDTHH:mm:ss"), message:txt
+          #TODO
+          #readInNickname
+          #if (nickname) {
+          #  msg.nickname = nickname
+          #}
           window.socket.emit 'chatMessage', msg
           @MessagesView.collection.add new Message msg
           nPut.val("")

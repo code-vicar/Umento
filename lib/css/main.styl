@@ -1,14 +1,24 @@
 @import 'nib'
 @import 'grid'
 
+//resets
 global-reset()
+a
+  outline none
+  text-decoration none
+  img
+    border none
+  &:link
+  &:visited
+    outline none
+    text-decoration none
+    color #fff
+    border none
 
-columns = 12
-column-width = 60px
-gutter-width = 20px
-
+//grid settings
 total-width = 100%
 
+//helper function
 orangePushButton(fontSize=18px, borderRad=7px, easeTime=0.2s)
   Ax = 0
   Ay = fontSize/3
@@ -49,21 +59,11 @@ orangePushButton(fontSize=18px, borderRad=7px, easeTime=0.2s)
   &:focus
     outline:yellow dotted thin;
 
+
+//styles
 input[type="text"]
   border-radius 7px
   box-shadow 0 0 2px rgba(#000,.5)
-
-a
-  outline none
-  text-decoration none
-  img
-    border none
-  &:link
-  &:visited
-    outline none
-    text-decoration none
-    color #fff
-    border none
 
 .button
   orangePushButton 12px, 5px
@@ -89,17 +89,49 @@ a
       margin-right 0px
 
 .mainsection
-  column 9
-  h1
-
-.mainaside
-  column 3
+  column 12
+  //offset 3
 
 .mainfooter
   column 12
 
+.messages
+  padding 10px
+  border solid #BB5422 2px
+  box-shadow inset 2px 2px 4px rgba(#000, 0.5)
+  background-color white
+
+.message
+  clearfix()
+
+.nickname
+  font-family Verdana, sans-serif
+  font-weight bold
+  color white
+  text-shadow -1px 0 1px rgba(#000,.5)
+  display block
+
+.ts
+  font-size 8px
+  color white
+  
+.messageHead
+.messageText
+  float left
+
+.messageHead
+  padding 8px
+  min-width 80px
+  background linear-gradient(left, #77A6F7, #42679E, #0B4A8A)
+  border solid 1px #0B4A8A
+  border-radius left 7px
+
+.messageText
+  margin-left 5px
+  line-height 2
+
 @media screen and (max-width: 720px)
   .mainsection
-  .mainaside
+    offset 0
     column 12
     margin-bottom 1em

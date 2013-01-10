@@ -9,7 +9,9 @@ require.config
     'backbone':
       deps: ['underscore', 'json2', 'jquery']
       exports: 'Backbone'
-
+    'moment':
+      deps: []
+      exports: 'moment'
 
 require [
   "jquery"
@@ -17,7 +19,7 @@ require [
   "UmentoApp"
   ], ($, mod, um) ->
     $ ->
-      window.socket = io.connect "#{document.location.host}:#{document.location.port}"
+      window.socket = io.connect "#{document.location.host}:#{document.location.port}", 'sync disconnect on unload':true
       seedData = JSON.parse $("#hdnStartVal").val()
       messages = new um.Messages seedData.messages
       messagesView = new um.MessagesView collection:messages
@@ -26,10 +28,6 @@ require [
       home = new um.Home({})
       connectedUsersView = new um.ConnectedUsersView model:home
       homeView = new um.HomeView el:$('.mainsection'), model:home, ConnectedUsersView:connectedUsersView, MessagesView:messagesView
-      
-      $(window).on 'beforeunload', ->
-        window.socket.disconnect()
-        return
         
       socket.on "connect", ->
         home.set connected: true

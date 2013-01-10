@@ -5,6 +5,7 @@ var socketio = require('socket.io');
 var stylus = require('stylus');
 var nib = require('nib');
 var cnCoffeeScript = require('connect-coffee-script');
+//var moment = require('public/js/moment');
 
 var app = express();
 var server = http.createServer(app);
@@ -142,7 +143,6 @@ io.sockets.on("connection", function (socket) {
   socket.on("chatMessage", function(data) {
     redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
       redisClient.ltrim("chatMessages", 0, 9, function(err, reply) {
-        //console.log(err);
       });
     });
     
