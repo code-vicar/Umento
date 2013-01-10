@@ -109,7 +109,7 @@ define 'UmentoApp', [
         txt = nPut.val()
         if txt.length > 0 and window.socket?
           msg = ts:moment().format("YYYY-MM-DDTHH:mm:ss"), message:txt
-          msg.nickname = nick if nick?
+          msg.nickname = nick if nick? and nick.length > 0
           
           window.socket.emit 'chatMessage', msg
           @MessagesView.collection.add new Message msg
