@@ -104,15 +104,13 @@ define 'UmentoApp', [
         @render()
 
       EmitVal: ->
-        nPut = $('#inVal') 
+        nick = $("#nick").val()
+        nPut = $("#inVal")
         txt = nPut.val()
         if txt.length > 0 and window.socket?
           msg = ts:moment().format("YYYY-MM-DDTHH:mm:ss"), message:txt
-          #TODO
-          #readInNickname
-          #if (nickname) {
-          #  msg.nickname = nickname
-          #}
+          msg.nickname = nick if nick?
+          
           window.socket.emit 'chatMessage', msg
           @MessagesView.collection.add new Message msg
           nPut.val("")

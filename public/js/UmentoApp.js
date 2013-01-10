@@ -195,14 +195,18 @@
       };
 
       HomeView.prototype.EmitVal = function() {
-        var msg, nPut, txt;
-        nPut = $('#inVal');
+        var msg, nPut, nick, txt;
+        nick = $("#nick").val();
+        nPut = $("#inVal");
         txt = nPut.val();
         if (txt.length > 0 && (window.socket != null)) {
           msg = {
             ts: moment().format("YYYY-MM-DDTHH:mm:ss"),
             message: txt
           };
+          if (nick != null) {
+            msg.nickname = nick;
+          }
           window.socket.emit('chatMessage', msg);
           this.MessagesView.collection.add(new Message(msg));
           return nPut.val("");
