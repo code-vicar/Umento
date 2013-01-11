@@ -1,3 +1,0 @@
-{"ts":1357328593322,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
-{"contributors":[],"silentsave":false,"ts":1357328782717,"patch":[[{"diffs":[[1,"# ignore dot files\r\n.*\r\n\r\n# ignore coffeescript\r\nlib/coffee/\r\n\r\n# ignore js warning\r\nlib/js/readme.txt"]],"start1":0,"start2":0,"length1":0,"length2":102}]],"length":102,"saved":false}
-{"contributors":[],"silentsave":false,"ts":1357604073812,"patch":[[{"diffs":[[0,"ore "],[-1,"coffeescript\r\nlib/coffee/\r\n\r\n# ignore js warning\r\nlib/js/readme.txt"],[1,"pre-compiled files\r\nlib/\r\n\r\nrequireJS/"]],"start1":31,"start2":31,"length1":71,"length2":42}]],"length":73,"saved":false}

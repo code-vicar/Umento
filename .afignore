@@ -1,7 +1,0 @@
-# ignore dot files
-.*
-
-# ignore pre-compiled files
-lib/
-
-requireJS/

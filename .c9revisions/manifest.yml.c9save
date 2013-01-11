@@ -1,1 +1,0 @@
-{"ts":1357237319172,"silentsave":true,"restoring":false,"patch":[[{"diffs":[[1,"---\napplications:\n  .:\n    name: umento\n    framework:\n      name: node\n      info:\n        mem: 64M\n        description: Node.js Application\n        exec: \n    url: ${name}.${target-base}\n    mem: 64M\n    instances: 1\n"]],"start1":0,"start2":0,"length1":0,"length2":219}]],"length":219}
