@@ -88,9 +88,9 @@ io.configure('production', function() {
   
   //enabled transports (removed websocket since AppFog doesn't support it yet)
   io.set('transports', [
-    'htmlfile'
+    'flashsocket'
+    , 'htmlfile'
     , 'xhr-polling'
-    , 'jsonp-polling'
   ]);
 });
 
