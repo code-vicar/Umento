@@ -284,6 +284,7 @@ input[type="text"] {
 .messageHead {
   padding: 8px;
   min-width: 120px;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=#77A6F7, endColorstr=#0B4A8A,GradientType=1 );
   background: -webkit-gradient(linear, left top, right top, color-stop(0, #77a6f7), color-stop(0.33333333333333326, #42679e), color-stop(1, #0b4a8a));
   background: -webkit-linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
   background: -moz-linear-gradient(left, #77a6f7 0%, #42679e 33.33333333333333%, #0b4a8a 100%);
