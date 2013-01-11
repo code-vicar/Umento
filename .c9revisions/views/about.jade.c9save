@@ -3,3 +3,5 @@
 {"contributors":[],"silentsave":false,"ts":1357434606483,"patch":[[{"diffs":[[0,"content "],[1,"to "],[0,"it's ado"]],"start1":274,"start2":274,"length1":16,"length2":19}]],"length":303,"saved":false}
 {"contributors":[],"silentsave":false,"ts":1357539925433,"patch":[[{"diffs":[[0,"\"public/"],[1,"css/"],[0,"main.css"]],"start1":80,"start2":80,"length1":16,"length2":20}]],"length":307,"saved":false}
 {"ts":1357540902944,"patch":[[{"diffs":[[0,"ef=\""],[-1,"public/"],[0,"css/"]],"start1":77,"start2":77,"length1":15,"length2":8}]],"length":300,"saved":false}
+{"contributors":[],"silentsave":false,"ts":1357867389364,"patch":[[{"diffs":[[0,"es Inc.\n"],[1,"      div(style=\"min-height:800px\")\n  "],[0,"      p "]],"start1":177,"start2":177,"length1":16,"length2":54}]],"length":338,"saved":false}
+{"ts":1357867473348,"patch":[[{"diffs":[[0,"nc.\n"],[-1,"      div(style=\"min-height:800px\")\n  "],[0,"    "]],"start1":181,"start2":181,"length1":46,"length2":8}]],"length":300,"saved":false}

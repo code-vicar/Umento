@@ -204,7 +204,7 @@
             ts: moment().format("YYYY-MM-DDTHH:mm:ss"),
             message: txt
           };
-          if (nick != null) {
+          if ((nick != null) && nick.length > 0) {
             msg.nickname = nick;
           }
           window.socket.emit('chatMessage', msg);

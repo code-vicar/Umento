@@ -10,6 +10,13 @@ body:after {
 body:after {
   clear: both;
 }
+@font-face {
+  font-family: 'DroidSansMonoRegular';
+  src: url("/fonts/DroidSansMono-webfont.eot");
+  src: url("/fonts/DroidSansMono-webfont.eot?#iefix") format('embedded-opentype'), url("/fonts/DroidSansMono-webfont.woff") format('woff'), url("/fonts/DroidSansMono-webfont.ttf") format('truetype'), url("/fonts/DroidSansMono-webfont.svg#DroidSansMonoRegular") format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 html,
 body,
 div,
@@ -115,6 +122,11 @@ a:visited {
   color: #fff;
   border: none;
 }
+body {
+  background: fixed top left url("/img/BenderBG.jpg") no-repeat, #000;
+  font-family: 'DroidSansMonoRegular', Verdana, sans-serif;
+  color: #fff;
+}
 input[type="text"] {
   -webkit-border-radius: 7px;
   border-radius: 7px;
@@ -180,7 +192,7 @@ input[type="text"] {
   margin: 0 1.0416666666666665%;
 }
 .mainheader h1 {
-  font: bold 12px Verdana, sans-serif;
+  font: bold 26px 'DroidSansMonoRegular', Verdana, sans-serif;
   color: #717165;
   text-transform: uppercase;
 }
@@ -205,24 +217,38 @@ input[type="text"] {
 .mainsection {
   display: inline;
   float: left;
-  width: 97.91666666666666%;
+  width: 72.91666666666666%;
   margin: 0 1.0416666666666665%;
+  margin-left: 26.041666666666668%;
+  min-height: 800px;
 }
 .mainfooter {
   display: inline;
   float: left;
   width: 97.91666666666666%;
   margin: 0 1.0416666666666665%;
+  text-align: right;
 }
 .messages {
   padding: 10px;
   border: solid #bb5422 2px;
-  -webkit-box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
-  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
-  background-color: #fff;
+  -webkit-box-shadow: inset 4px 4px 8px #bb5422;
+  box-shadow: inset 4px 4px 8px #bb5422;
+  background-color: #88f;
+  color: #000;
 }
 .message {
+  background-color: #fff;
+  border-bottom: solid #000 1px;
+  border-left: solid #000 1px;
+  -webkit-border-top-left-radius: 7px;
+  border-top-left-radius: 7px;
+  -webkit-border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
   *zoom: 1;
+}
+.message:first-child {
+  border-top: solid #000 1px;
 }
 .message:before,
 .message:after {
@@ -235,13 +261,11 @@ input[type="text"] {
 .nickname {
   font-family: Verdana, sans-serif;
   font-weight: bold;
-  color: #fff;
   text-shadow: -1px 0 1px rgba(0,0,0,0.5);
   display: block;
 }
 .ts {
   font-size: 8px;
-  color: #fff;
 }
 .messageHead,
 .messageText {
@@ -261,6 +285,7 @@ input[type="text"] {
   border-top-left-radius: 7px;
   -webkit-border-bottom-left-radius: 7px;
   border-bottom-left-radius: 7px;
+  color: #fff;
 }
 .messageText {
   margin-left: 5px;
