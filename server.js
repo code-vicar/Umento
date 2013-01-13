@@ -1,5 +1,6 @@
 var http = require('http');
 var redis = require('redis');
+var connectRedis = require('connect-redis');
 var express = require('express');
 var socketio = require('socket.io');
 var stylus = require('stylus');
@@ -7,6 +8,7 @@ var nib = require('nib');
 var cnCoffeeScript = require('connect-coffee-script');
 //var moment = require('public/js/moment');
 
+var RedisStore = connectRedis(express);
 var app = express();
 var server = http.createServer(app);
 
@@ -55,14 +57,41 @@ app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   
+  //express middleware
+  app.use(express.favicon());
+  app.use(express.logger());
+  app.use(express.methodOverride());
+  app.use(express.bodyParser());
+  app.use(express.cookieParser());
+  app.use(express.session({
+    key: 'umentoIsAwesome',
+    secret: 'secret code: vt0EIiMDWtCShAtq',
+    cookie: { secure: true },
+    store: new RedisStore()
+  }));
   app.use(stylus.middleware(stylusMiddlewareOptions));
-  
   app.use(cnCoffeeScript({
    src: __dirname + '/lib',
    dest: __dirname + '/public'
   }));
-  
+  app.use(app.router);
   app.use(express.static(__dirname + '/public'));
+  
+  app.use(function(req, res, next) {
+    res.status(404);
+    
+    if (req.accepts('html')) {
+      res.render('404', { url:req.url, layout:false });
+      return;
+    }
+    
+    if (req.accepts('json')) {
+      res.send({error: 'Not found' });
+      return;
+    }
+    
+    res.type('txt').send('Not found');
+  });
 });
 
 console.log("redis host: " + app.get("umento_redisHost"));
@@ -120,10 +149,6 @@ function renderAbout(req, res) {
 }
 
 app.get("/", function(req, res) {
-  renderHome(req, res);
-});
-
-app.get("/default", function(req, res) {
   renderHome(req, res);
 });
 
