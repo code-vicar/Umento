@@ -121,6 +121,13 @@ io.configure('production', function() {
   ]);
 });
 
+//temporary user test area
+var UserFactory = require('./models/user')(redisClient);
+
+UserFactory.findOne('svickers', function(err, user){
+  console.log(user);
+});
+
 var noCacheResHeaders = {
   'Pragma':'no-cache',
   'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
@@ -136,7 +143,7 @@ function renderHome(req, res) {
     });
     res.set(noCacheResHeaders);
     res.render("default", {
-      "title": "Umento",
+      "title": "Monumentous",
       "StartVal": JSON.stringify({messages:msgs})
     });
   });
@@ -144,7 +151,7 @@ function renderHome(req, res) {
 
 function renderAbout(req, res) {
   res.render("about", {
-    "title":"Umento - About"
+    "title":"Monumentous - About"
   });
 }
 
