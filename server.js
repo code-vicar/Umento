@@ -100,6 +100,8 @@ console.log("redis auth: " + app.get("umento_redisAuth"));
 
 var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
 redisClient.auth(app.get("umento_redisAuth"));
+var User = require('./models/user')(redisClient);
+
 server.listen(app.get("umento_httpPort"));
 var io = socketio.listen(server);
 
@@ -119,13 +121,6 @@ io.configure('production', function() {
   io.set('transports', [
     'xhr-polling'
   ]);
-});
-
-//temporary user test area
-var UserFactory = require('./models/user')(redisClient);
-
-UserFactory.findOne('svickers', function(err, user){
-  console.log(user);
 });
 
 var noCacheResHeaders = {
