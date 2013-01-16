@@ -286,7 +286,9 @@ function main(stylusOpts) {
       //prevent memory leak by removing the interval that was refreshing this socket's session while it was connected
       clearInterval(intervalID);
       
-      //check the room for this session, if this was the last browser with that session then decrement the user count
+      //make sure the socket has left the session room
+      socket.leave(hs.sessionID);
+      //check the room for other sockets, if this was the last browser with that session then decrement the user count
       if (io.sockets.clients(hs.sessionID).length === 0) {
         userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
       }
