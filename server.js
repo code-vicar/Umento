@@ -72,7 +72,7 @@ function main(stylusOpts) {
   
   //express middleware
   var cookieSecret = 'vt0EIiMDWtCShAtq';
-  app.use(express.favicon('./favicon.ico'));
+  app.use(express.favicon(__dirname + '/favicon.ico'));
   app.use(express.logger());
   app.use(express.methodOverride());
   app.use(express.bodyParser());
