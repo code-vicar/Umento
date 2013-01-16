@@ -211,8 +211,10 @@ input[type="text"] {
   float: left;
   width: 97.91666666666666%;
   margin: 0 1.0416666666666665%;
+  *zoom: 1;
 }
 .primarynav ul {
+  float: left;
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -223,6 +225,17 @@ input[type="text"] {
 }
 .primarynav ul li:last-child {
   margin-right: 0px;
+}
+.primarynav .login {
+  float: right;
+}
+.primarynav:before,
+.primarynav:after {
+  content: "";
+  display: table;
+}
+.primarynav:after {
+  clear: both;
 }
 .mainsection {
   display: inline;

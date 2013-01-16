@@ -2,10 +2,12 @@ var http = require('http');
 var redis = require('redis');
 var connectRedis = require('connect-redis');
 var express = require('express');
+var Session = express.session.Session;
 var socketio = require('socket.io');
 var stylus = require('stylus');
 var nib = require('nib');
 var cnCoffeeScript = require('connect-coffee-script');
+var utils = require('./utils');
 //var moment = require('public/js/moment');
 
 var RedisStore = connectRedis(express);
@@ -18,8 +20,6 @@ function compileStyl(str, path) {
     .use(nib());
 }
 
-var stylusMiddlewareOptions;
-
 //c9.io umento development settings
 app.configure('development', function() {
   console.log("in development");
@@ -27,12 +27,14 @@ app.configure('development', function() {
   app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
   app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
-  stylusMiddlewareOptions = {
+  var stylusOpts = {
     debug: true,
     src: __dirname + '/lib',
     dest: __dirname + '/public',
     compile: compileStyl
   };
+  
+  main(stylusOpts);
 });
 
 //app fog umento.hp.af.cm production settings
@@ -44,36 +46,48 @@ app.configure('production', function() {
   app.set("umento_redisHost", redisCreds.host);
   app.set("umento_redisPort", redisCreds.port);
   app.set("umento_redisAuth", redisCreds.password);
-  stylusMiddlewareOptions = {
+  var stylusOpts = {
     src: __dirname + '/lib',
     dest: __dirname + '/public',
     compile: compileStyl
   };
+  
+  main(stylusOpts);
 });
 
-//general configurations
-app.configure(function() {
+function main(stylusOpts) {
+    
+  console.log("redis host: " + app.get("umento_redisHost"));
+  console.log("redis port: " + app.get("umento_redisPort"));
+  console.log("redis auth: " + app.get("umento_redisAuth"));
+  
+  var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
+  redisClient.auth(app.get("umento_redisAuth"));
+  var redisStore = new RedisStore({client: redisClient});
+  
+  //general configurations
   app.set('title', 'Try Umento');
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   
   //express middleware
-  app.use(express.favicon());
+  var cookieSecret = 'vt0EIiMDWtCShAtq';
+  app.use(express.favicon('./favicon.ico'));
   app.use(express.logger());
   app.use(express.methodOverride());
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(express.session({
-    key: 'umentoIsAwesome',
-    secret: 'secret code: vt0EIiMDWtCShAtq',
-    cookie: { secure: true },
-    store: new RedisStore()
+    secret: cookieSecret,
+    key: 'umento.sid',
+    store: redisStore
   }));
-  app.use(stylus.middleware(stylusMiddlewareOptions));
+  app.use(stylus.middleware(stylusOpts));
   app.use(cnCoffeeScript({
    src: __dirname + '/lib',
    dest: __dirname + '/public'
   }));
+  app.use(globalViewData);
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
   
@@ -92,91 +106,191 @@ app.configure(function() {
     
     res.type('txt').send('Not found');
   });
-});
-
-console.log("redis host: " + app.get("umento_redisHost"));
-console.log("redis port: " + app.get("umento_redisPort"));
-console.log("redis auth: " + app.get("umento_redisAuth"));
-
-var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
-redisClient.auth(app.get("umento_redisAuth"));
-var User = require('./models/user')(redisClient);
-
-server.listen(app.get("umento_httpPort"));
-var io = socketio.listen(server);
-
-//redisClient settings
-redisClient.on("error", function(err){
-  console.log("Redis Error: " + err);
-});
-
-//socket.io settings
-io.configure('production', function() {
-  io.enable('browser client minification');  // send minified client
-  io.enable('browser client etag');          // apply etag caching logic based on version number
-  io.enable('browser client gzip');          // gzip the file
-  io.set('log level', 1);                    // reduce logging
   
-  //enabled transports (removed websocket since AppFog doesn't support it yet)
-  io.set('transports', [
-    'xhr-polling'
-  ]);
-});
-
-var noCacheResHeaders = {
-  'Pragma':'no-cache',
-  'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
-  'Expires':'0'
-};
-
-function renderHome(req, res) {
-  redisClient.lrange("chatMessages", 0, -1, function(err, reply) {
-    reply = reply ? reply : [];
-    var msgs = [];
-    reply.forEach(function(msg){
-      msgs.unshift(JSON.parse(msg));
-    });
-    res.set(noCacheResHeaders);
-    res.render("default", {
-      "title": "Monumentous",
-      "StartVal": JSON.stringify({messages:msgs})
-    });
+  var User = require('./models/user')(redisClient);
+  
+  server.listen(app.get("umento_httpPort"));
+  var io = socketio.listen(server);
+  io.set ('authorization', socketAuth);
+  
+  //redisClient settings
+  redisClient.on("error", function(err){
+    console.log("Redis Error: " + err);
   });
-}
-
-function renderAbout(req, res) {
-  res.render("about", {
-    "title":"Monumentous - About"
+  
+  //socket.io settings
+  io.configure('production', function() {
+    io.enable('browser client minification');  // send minified client
+    io.enable('browser client etag');          // apply etag caching logic based on version number
+    io.enable('browser client gzip');          // gzip the file
+    io.set('log level', 1);                    // reduce logging
+    
+    //enabled transports (removed websocket since AppFog doesn't support it yet)
+    io.set('transports', [
+      'xhr-polling'
+    ]);
   });
-}
-
-app.get("/", function(req, res) {
-  renderHome(req, res);
-});
-
-app.get("/about", function(req, res) {
-  renderAbout(req, res);
-});
-
-var userCount = 0;
-io.sockets.on("connection", function (socket) {
-  userCount += 1;
   
-  io.sockets.emit("connectedUsers", {count: userCount});
+  var noCacheResHeaders = {
+    'Pragma':'no-cache',
+    'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
+    'Expires':'0'
+  };
   
-  //listen for "SetVal" emits from the client
-  socket.on("chatMessage", function(data) {
-    redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
-      redisClient.ltrim("chatMessages", 0, 9, function(err, reply) {
+  function globalViewData(req, res, next) {
+    res.viewData = {};
+    if (req.session.user) {
+      res.viewData.username = req.session.user.username;
+    }
+    next();
+  }
+  
+  function renderHome(req, res) {
+    res.viewData.title = "Monumentous";
+    
+    redisClient.lrange("chatMessages", 0, -1, function(err, reply) {
+      reply = reply ? reply : [];
+      var msgs = [];
+      reply.forEach(function(msg){
+        msgs.unshift(JSON.parse(msg));
       });
+      res.set(noCacheResHeaders);
+      res.viewData.messages = JSON.stringify(msgs);
+      res.render("default", res.viewData);
     });
-    
-    socket.broadcast.emit("chatMessage", data);
+  }
+  
+  function renderAbout(req, res) {
+    res.viewData.title = "Monumentous - About";
+    res.render("about", {
+      "title":res.viewData
+    });
+  }
+  
+  app.get("/", function(req, res) {
+    renderHome(req, res);
   });
   
-  socket.on("disconnect", function() {
-    userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
-    
-    io.sockets.emit("connectedUsers", {count: userCount});
+  app.get("/about", function(req, res) {
+    renderAbout(req, res);
   });
-});
+  
+  function socketAuth(handShakeData, accept) {
+    // check if there's a cookie header
+    if (handShakeData.headers.cookie) {
+        // if there is, parse the cookie
+        handShakeData.cookie = utils.cookie.parse(handShakeData.headers.cookie);
+        handShakeData.sessionID =  utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
+        handShakeData.sessionStore = redisStore;
+        //console.log("socket auth handshake data -> ");
+        //console.log(handShakeData);
+        redisStore.get(handShakeData.sessionID, function(err, reply) {
+          if (err || !reply) {
+            //can't  get session information from the store
+            return accept('session retrieval error', false);
+          }
+          handShakeData.session = new Session(handShakeData, reply);
+          accept(null, true);
+        });
+    } else {
+       // if there isn't, turn down the connection with a message
+       // and leave the function.
+       return accept('No cookie transmitted.', false);
+    }
+  }
+  
+  var userCount = 0;
+  io.sockets.on("connection", function (socket) {
+    //session stuff
+    var hs = socket.handshake;
+    // setup an inteval that will keep our session fresh
+    var intervalID = setInterval(function () {
+        // reload the session (just in case something changed,
+        // we don't want to override anything, but the age)
+        // reloading will also ensure we keep an up2date copy
+        // of the session with our connection.
+        hs.session.reload( function () { 
+            // "touch" it (resetting maxAge and lastAccess)
+            // and save it back again.
+            hs.session.touch().save();
+        });
+    }, 60 * 1000);
+
+    socket.join(hs.sessionID);
+    
+    if (io.sockets.clients(hs.sessionID).length === 1) {
+      //new session
+      userCount += 1;
+    }
+    io.sockets.emit("connectedUsers", {count: userCount});
+    
+    //listen for new user accounts
+    socket.on("createAccount", function(data) {
+      //make sure they aren't already signed in
+      if (!hs.session.user && data.hasOwnProperty("username") && data.hasOwnProperty("password")) {
+        var usrData = { username:data.username, password:data.password };
+        if (data.hasOwnProperty("email") && typeof data.email === 'string' && data.email.length > 0) {
+          usrData.email = data.email;
+        }
+        var user = new User(usrData);
+        user.save(function(err, savedUser) {
+          if (err || !savedUser) {
+            console.log("could not create account ->");
+            console.log(err);
+            socket.emit("createAccount", {result:false});
+          } else {
+            hs.session.user = savedUser;
+            socket.emit("createAccount", {result:true, username:savedUser.username});
+          }
+        });
+      }
+    });
+    
+    //listen for login attempts
+    socket.on("login", function(data) {
+      //make sure they aren't already signed in and the necessary data is available
+      if (!hs.session.user && data.hasOwnProperty("username") && data.hasOwnProperty("password")) {
+        //check their credentials
+        User.Authenticate(data.username, data.password, function(err, user) {
+          if (err || !user) {
+            socket.emit("login", {result:false});
+          } else {
+            //authenticated
+            hs.session.user = user;
+            hs.session.regenerate(function(err) {
+              if (err) {
+                console.log("failed to regenerate user session");
+                delete hs.session.user;
+                socket.emit("login", {result:false});
+              } else {
+                socket.emit("login", {result:true, username:user.username});
+              }
+            });
+          }
+        });
+      }
+    });
+    
+    //listen for chat messages
+    socket.on("chatMessage", function(data) {
+      redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
+        redisClient.ltrim("chatMessages", 0, 9, function(err, reply) {
+        });
+      });
+      
+      socket.broadcast.emit("chatMessage", data);
+    });
+    
+    //listen for socket disconnections
+    socket.on("disconnect", function() {
+      //prevent memory leak by removing the interval that was refreshing this socket's session while it was connected
+      clearInterval(intervalID);
+      
+      //check the room for this session, if this was the last browser with that session then decrement the user count
+      if (io.sockets.clients(hs.sessionID).length === 0) {
+        userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
+      }
+      io.sockets.emit("connectedUsers", {count: userCount});
+    });
+  });
+}

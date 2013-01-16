@@ -16,6 +16,8 @@
     "stylus": "~0.32.0",
     "nib": "~0.9.1",
     "connect-coffee-script": "~0.0.8",
-    "bcrypt": "~0.7.3"
+    "bcrypt": "~0.7.3",
+    "cookie": "~0.0.5",
+    "cookie-signature": "~0.0.1"
   }
 }

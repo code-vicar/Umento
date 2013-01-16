@@ -27,8 +27,8 @@
       window.socket = io.connect("" + document.location.host + ":" + document.location.port, {
         'sync disconnect on unload': true
       });
-      seedData = JSON.parse($("#hdnStartVal").val());
-      messages = new um.Messages(seedData.messages);
+      seedData = JSON.parse($("#hdnMessages").val());
+      messages = new um.Messages(seedData);
       messagesView = new um.MessagesView({
         collection: messages
       });

@@ -17,11 +17,9 @@
       //create properties from the object passed to the constuctor
       for (var key in props) {
         if (props.hasOwnProperty(key) && typeof props[key] !== 'Object' && typeof props[key] !== 'function' && props[key] !== null) {
-          if (!this.hasOwnProperty(key)){
+          if (!this.hasOwnProperty(key)) {
             Object.defineProperty(
-              this,
-              key,
-              Object.getOwnPropertyDescriptor(props, key)
+              this, key, Object.getOwnPropertyDescriptor(props, key)
             );
           } else {
             this[key] = props[key];
@@ -33,9 +31,14 @@
     User.prototype.comparePassword = function(pass, cb) {
       var me = this;
       
+      if (typeof pass !== 'string' && typeof pass !== 'number') {
+        return cb("Invalid password as parameter");
+      }
+      
       if (!me.hasOwnProperty('id') || typeof me.id !== 'number' || me.id <= 0) {
         return cb("Invalid or missing ID");
       }
+      
       if (!me.hasOwnProperty('password') || typeof me.password !== 'string' || me.password < MIN_PASSWORD_LENGTH) {
         return cb("Invalid or missing password");
       }
@@ -51,9 +54,9 @@
         {
           return cb("No such user");
         }
-        
+        var sPass = pass.toString();
         //user exists in the database
-        bcrypt.compare(pass, me.password, function(err, isMatch) {
+        bcrypt.compare(sPass, me.password, function(err, isMatch) {
           if (err) { return cb(err); }
           cb(null, isMatch);
         });
@@ -224,6 +227,16 @@
       } else {
         cb("Incorrect arguments, pass an object with a key of id, or username");
       }
+    };
+    
+    User.Authenticate = function(name, pass, cb) {
+      User.findOne({username:name}, function(err, user) {
+      if (err || !user) { return cb("Could not authenticate"); }
+        user.comparePassword(pass, function(err, isMatch) {
+        if (err || !isMatch) { return cb("Could not authenticate"); }
+          cb(null, user);
+        });
+      });
     };
     
     return User;

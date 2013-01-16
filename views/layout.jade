@@ -12,6 +12,13 @@ html
           a(href="/") Home
         li
           a(href="about") About
+      .login
+        - if (typeof username === 'string' && username.length > 0)
+          span=username
+        - else
+          a(id="btnLogin", class="button")
+            span Login
+          
     block content
     
     footer(class="mainfooter") Mon.umento.us&copy; is a product of Jasco Supplies Inc.&trade;
