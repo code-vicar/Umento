@@ -274,7 +274,7 @@ function main(stylusOpts) {
     //listen for chat messages
     socket.on("chatMessage", function(data) {
       redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
-        redisClient.ltrim("chatMessages", 0, 9, function(err, reply) {
+        redisClient.ltrim("chatMessages", 0, 19, function(err, reply) {
         });
       });
       
