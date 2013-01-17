@@ -1,0 +1,19 @@
+<%
+if (username.length > 0) {
+  print('<span>' + username + '</span>');
+} else {
+%>
+  <a id="btnLogin" class="button">
+    <span>Login</span>
+  </a>
+  <div id="accountForm" class="accountForm" >
+    <label>Username</label>
+    <input id="username" name="username" type="text" placeholder="fred" />
+    <label>Email</label>
+    <input id="email" name="email" type="email" placeholder="fred@gmail.com" />
+    <label>Password</label>
+    <input id="password" name="password" type="password" />
+  </div>
+<%
+}
+%>

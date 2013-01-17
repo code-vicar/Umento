@@ -1,65 +1,52 @@
 (function() {
+  var ConnectedUsersAPI, HomeAPI, MessageAPI, ns;
 
-  require.config({
-    shim: {
-      'jquery': {
-        deps: [],
-        exports: '$'
-      },
-      'underscore': {
-        deps: ['json2', 'jquery'],
-        exports: '_'
-      },
-      'backbone': {
-        deps: ['underscore', 'json2', 'jquery'],
-        exports: 'Backbone'
-      },
-      'moment': {
-        deps: [],
-        exports: 'moment'
-      }
-    }
-  });
+  ns = window.Umento = window.Umento || {};
 
-  require(["jquery", "modernizr", "UmentoApp"], function($, mod, um) {
-    return $(function() {
-      var connectedUsersView, home, homeView, messages, messagesView, seedData;
-      window.socket = io.connect("" + document.location.host + ":" + document.location.port, {
-        'sync disconnect on unload': true
+  HomeAPI = ns.require("/js/Home");
+
+  MessageAPI = ns.require("/js/Message");
+
+  ConnectedUsersAPI = ns.require("/js/ConnectedUsers");
+
+  $(function() {
+    var connectedUsers, connectedUsersView, home, homeView, messages, messagesView, seedData;
+    ns.socket = io.connect("" + document.location.host + ":" + document.location.port, {
+      'sync disconnect on unload': true
+    });
+    seedData = JSON.parse($("#hdnMessages").val());
+    messages = new MessageAPI.Messages(seedData);
+    messagesView = new MessageAPI.MessagesView({
+      collection: messages
+    });
+    connectedUsers = new ConnectedUsersAPI.ConnectedUsers({});
+    connectedUsersView = new ConnectedUsersAPI.ConnectedUsersView({
+      model: connectedUsers
+    });
+    home = new HomeAPI.Home({});
+    homeView = new HomeAPI.HomeView({
+      el: $('.mainsection'),
+      model: home,
+      ConnectedUsersView: connectedUsersView,
+      MessagesView: messagesView
+    });
+    ns.socket.on("connect", function() {
+      return home.set({
+        connected: true
       });
-      seedData = JSON.parse($("#hdnMessages").val());
-      messages = new um.Messages(seedData);
-      messagesView = new um.MessagesView({
-        collection: messages
+    });
+    ns.socket.on("disconnect", function() {
+      return home.set({
+        connected: false
       });
-      home = new um.Home({});
-      connectedUsersView = new um.ConnectedUsersView({
-        model: home
+    });
+    ns.socket.on("connectedUsers", function(data) {
+      return connectedUsers.set({
+        count: data.count
       });
-      homeView = new um.HomeView({
-        el: $('.mainsection'),
-        model: home,
-        ConnectedUsersView: connectedUsersView,
-        MessagesView: messagesView
-      });
-      socket.on("connect", function() {
-        return home.set({
-          connected: true
-        });
-      });
-      socket.on("disconnect", function() {
-        return home.set({
-          connected: false
-        });
-      });
-      socket.on("connectedUsers", function(data) {
-        return home.set({
-          connectedUsers: data.count
-        });
-      });
-      return socket.on("chatMessage", function(data) {
-        return messages.add(data);
-      });
+    });
+    return ns.socket.on("chatMessage", function(data) {
+      return messages.add(data);
     });
   });
 

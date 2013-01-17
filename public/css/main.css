@@ -315,6 +315,17 @@ input[type="text"] {
   margin-left: 5px;
   line-height: 2;
 }
+.accountForm {
+  display: none;
+  opacity: 100;
+  filter: alpha(opacity=10000);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=10000)";
+  -webkit-transition-property: all 0.3s linear 0s;
+  -moz-transition-property: all 0.3s linear 0s;
+  -o-transition-property: all 0.3s linear 0s;
+  -ms-transition-property: all 0.3s linear 0s;
+  transition-property: all 0.3s linear 0s;
+}
 @media screen and (max-width: 720px) {
   .mainsection {
     margin-left: 1.0416666666666665%;

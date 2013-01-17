@@ -1,11 +1,11 @@
 Socket.io Demo, connected users:
 <%
-  if (connectedUsers <= 0) {
+  if (count <= 0) {
     print('0');
-  } else if (connectedUsers === 1) {
+  } else if (count === 1) {
     print('you');
   } else {
-    var others = connectedUsers - 1;
+    var others = count - 1;
     if (others === 1) {
       print('you and 1 other user');
     } else {

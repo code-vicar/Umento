@@ -2,10 +2,12 @@ extends layout
 
 block topscripts
   link(rel="stylesheet", type="text/css", href="css/main.css")
-  script(src="/socket.io/socket.io.js")
-  script(data-main="js/default", src="js/require.js")
 
 block content
   section(class="mainsection")
 
   input(id="hdnMessages", type="hidden", value="#{messages}")
+
+block botscripts
+  script(src="/socket.io/socket.io.js")
+  script(src="/js/default.js")
