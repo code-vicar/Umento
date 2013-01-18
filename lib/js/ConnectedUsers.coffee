@@ -15,9 +15,14 @@ class ConnectedUsersView extends UmView
     _.template tmpConUsers, @model.toJSON()
     
   initialize: ->
+    
     @model.on 'change:count', ->
       @render()
     , @
+    
+    ns.socket.on "connectedUsers", _.bind((data) ->
+      @model.set "count", data.count
+    , @)
     
     @render()
     

@@ -52,6 +52,12 @@
       this.model.on('change:connected', function() {
         return this.render();
       }, this);
+      ns.socket.on("connect", _.bind(function() {
+        return this.model.set("connected", true);
+      }, this));
+      ns.socket.on("disconnect", _.bind(function() {
+        return this.model.set("connected", false);
+      }, this));
       return this.render();
     };
 

@@ -47,6 +47,9 @@
       this.model.on('change:count', function() {
         return this.render();
       }, this);
+      ns.socket.on("connectedUsers", _.bind(function(data) {
+        return this.model.set("count", data.count);
+      }, this));
       return this.render();
     };
 

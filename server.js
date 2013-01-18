@@ -2,7 +2,6 @@ var http = require('http');
 var redis = require('redis');
 var connectRedis = require('connect-redis');
 var express = require('express');
-var Session = express.session.Session;
 var socketio = require('socket.io');
 var stylus = require('stylus');
 var nib = require('nib');
@@ -136,18 +135,26 @@ function main(stylusOpts) {
     'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
     'Expires':'0'
   };
-  
+    
   function globalViewData(req, res, next) {
-    res.viewData = {};
+    res.ViewData = res.ViewData || {};
+    res.ViewData.username = ""; 
     if (req.session.user) {
-      res.viewData.username = req.session.user.username;
+      res.ViewData.username = req.session.user.username;
+      //console.log("global req ->");
+      //console.log(res.ViewData);
     }
     next();
   }
   
   function renderHome(req, res) {
-    res.viewData.title = "Monumentous";
-    
+    res.ViewData.title = "Monumentous";
+    //req.session.views = req.session.views || 0;
+    //req.session.views = req.session.views + 1;
+    //console.log("request session ->");
+    //console.log(req.session);
+    //console.log("view data ->");
+    //console.log(res.ViewData);
     redisClient.lrange("chatMessages", 0, -1, function(err, reply) {
       reply = reply ? reply : [];
       var msgs = [];
@@ -155,15 +162,15 @@ function main(stylusOpts) {
         msgs.unshift(JSON.parse(msg));
       });
       res.set(noCacheResHeaders);
-      res.viewData.messages = JSON.stringify(msgs);
-      res.render("default", res.viewData);
+      res.ViewData.messages = JSON.stringify(msgs);
+      res.render("default", res.ViewData);
     });
   }
   
   function renderAbout(req, res) {
-    res.viewData.title = "Monumentous - About";
+    res.ViewData.title = "Monumentous - About";
     res.render("about", {
-      "title":res.viewData
+      "title":res.ViewData
     });
   }
   
@@ -181,9 +188,31 @@ function main(stylusOpts) {
         // if there is, parse the cookie
         handShakeData.cookie = utils.cookie.parse(handShakeData.headers.cookie);
         handShakeData.sessionID =  utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
-        handShakeData.sessionStore = redisStore;
+        //handShakeData.sessionStore = redisStore;
         //console.log("socket auth handshake data -> ");
         //console.log(handShakeData);
+        redisStore.load(handShakeData.sessionID, function(err, sess){
+          if (err || !sess) {
+            //can't  get session information from the store
+            return accept('session retrieval error', false);
+          }
+          //console.log("loaded session on socket authentication ->");
+          //console.log(sess);
+          handShakeData.session = sess;
+          accept(null, true);
+        });
+        /*
+        express.session.Store.load(handShakeData.sessionID, function(err, sess){
+          if (err || !sess) {
+            //can't  get session information from the store
+            return accept('session retrieval error', false);
+          }
+          console.log("loaded session on socket authentication ->");
+          console.log(sess);
+          handShakeData.session = sess;
+          accept(null, true);
+        });
+        
         redisStore.get(handShakeData.sessionID, function(err, reply) {
           if (err || !reply) {
             //can't  get session information from the store
@@ -191,7 +220,7 @@ function main(stylusOpts) {
           }
           handShakeData.session = new Session(handShakeData, reply);
           accept(null, true);
-        });
+        });*/
     } else {
        // if there isn't, turn down the connection with a message
        // and leave the function.
@@ -256,18 +285,20 @@ function main(stylusOpts) {
             socket.emit("login", {result:false});
           } else {
             //authenticated
-            hs.session.user = user;
             hs.session.regenerate(function(err) {
               if (err) {
                 console.log("failed to regenerate user session");
-                delete hs.session.user;
                 socket.emit("login", {result:false});
               } else {
+                hs.session.user = user;
+                //console.log(hs.session);
                 socket.emit("login", {result:true, username:user.username});
               }
             });
           }
         });
+      } else {
+        socket.emit("login", {result:false});
       }
     });
     

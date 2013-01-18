@@ -6,20 +6,22 @@ html
   body
     header(class="mainheader")
       h1 Monumentous, the portmanteau for awesome peoples!
+      .login(id="login")
     nav(class="primarynav")
       ul
         li
           a(href="/") Home
         li
           a(href="about") About
-      .login(id="login")
           
     block content
     
     footer(class="mainfooter") Mon.umento.us&copy; is a product of Jasco Supplies Inc.&trade;
 
-  input(id="username", type="hidden")
-
+  
+  input(id="hdnUsername", type="hidden", value="#{username}")
+  
+  script(src="/socket.io/socket.io.js")
   script(src="/js/jquery.js")
   script(src="/js/json2.js")
   script(src="/js/underscore.js")

@@ -44,7 +44,6 @@ orangePushButton(fontSize=18px, borderRad=7px, easeTime=0.2s)
     padding padtb padlr
     font-family Verdana, sans-serif
     font-size fontSize
-    text-transform uppercase
     line-height 1
     text-shadow 0 -1px 1px rgba(19, 65, 88, .8)
     background #BB5422
@@ -57,9 +56,9 @@ orangePushButton(fontSize=18px, borderRad=7px, easeTime=0.2s)
     box-shadow Ax Ay Ablur #823a17, BxActive ByActive BblurActive rgba(#000,0.3)
     span
       transform translate(0, TranslateActive)
-  &:focus
-    outline:yellow dotted thin;
 
+  &:focus
+    box-shadow Ax Ay Ablur #823a17, 0px 0px 10px 4px #bbf
 
 //styles
 body
@@ -67,22 +66,74 @@ body
   font-family 'DroidSansMonoRegular', Verdana, sans-serif
   color white
 
-input[type="text"]
+input
+  padding 2px
   border-radius 7px
-  box-shadow 0 0 2px rgba(#000,.5)
+  border 1px solid #00f
+  &:focus
+    outline none
+    box-shadow inset 0px 0px 5px #00f
 
-.button
-  orangePushButton 12px, 5px
-  margin 10px
-
+  #nick
+    margin 0 3px
+  #inVal
+    margin 0 3px
+  
 .mainheader
   column 12
+  border-radius left 7px
+  background linear-gradient(left, rgba(255,255,255,.8) 50%, rgba(0,0,0,.8) 70%)
+  color #717165
   h1
-    font bold 26px 'DroidSansMonoRegular', Verdana, sans-serif
-    color #717165
+    font-size 26px
+    font-weight bold
     text-transform uppercase
-    background linear-gradient(left, rgba(255,255,255,.8) 50%, rgba(0,0,0,.8) 70%)
-    border-radius left 7px
+  .login
+    absolute top right
+    clearfix()
+    .button
+      float right
+      margin 4px 4px 0px 0px
+      padding 4px
+      font-size 22px
+      font-weight bold
+      border-radius 7px
+      cursor pointer
+      background linear-gradient(bottom, #CCC, #555)
+      box-shadow inset 0px 2px 0px rgb(165,165,165), inset -2px 0px 0px #222
+      transition all 0.1s linear
+      &:active
+        box-shadow none
+        transform translate(2px,-2px)
+      &:focus
+        outline none
+        box-shadow inset 0px 2px 0px rgb(165,165,165), inset -2px 0px 0px #222, 0px 0px 10px 4px #bbf
+      span
+        color white
+        border-radius 7px
+
+    .accountForm
+      float right
+      border-radius left 7px
+      background linear-gradient(left, rgba(255,255,255,.8) 50%, rgba(0,0,0,.8) 70%)
+      display none
+      fieldset[name="email"]
+        display none
+
+    .usernameDisplay
+      font bold 24px 'DroidSansMonoRegular', Verdana, sans-serif
+      border-radius 7px
+      padding 5px
+      background silver
+      &:before
+        content 'Welcome '
+
+    .message
+      float right
+      display none
+      border-radius left 7px
+      font-size 26px
+      background linear-gradient(left, rgba(255,51,28,.8) 50%, rgba(0,0,0,.8) 70%)
 
 .primarynav
   column 12
@@ -152,11 +203,6 @@ input[type="text"]
 .messageText
   margin-left 5px
   line-height 2
-
-.accountForm
-  display none
-  opacity 100
-  transition-property all 0.3s linear 0s
 
 
 @media screen and (max-width: 720px)

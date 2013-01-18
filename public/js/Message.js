@@ -107,6 +107,9 @@
       this.AddAll = _.bind(this.AddAll, this);
       this.collection.on('reset', this.AddAll);
       this.collection.on('add', this.AddOne);
+      ns.socket.on("chatMessage", _.bind(function(data) {
+        return this.collection.add(data);
+      }, this));
       return this.render();
     };
 

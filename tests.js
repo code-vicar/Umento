@@ -6,6 +6,7 @@ redisClient.flushdb();
 //test user model
 var User = require('./models/user')(redisClient);
 var scott = new User({username:'svickers', email:'sup@supmail.com', password:'sostrongpassword'});
+
 scott.save(function(err, savedScott) {
   if (err) { return console.log(err); }
 

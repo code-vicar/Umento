@@ -3,6 +3,7 @@ ns = window.Umento = window.Umento || {}
 UmView = ns.require "/js/UmView"
 MessageAPI = ns.require "/js/Message"
 tmpHome = ns.require "/templates/Home.html"
+
 exports = {}
 class Home extends Backbone.Model
   defaults: ->
@@ -22,6 +23,14 @@ class HomeView extends UmView
     
     @model.on 'change:connected', ->
       @render()
+    , @
+    
+    ns.socket.on "connect", _.bind ->
+      @model.set "connected", true
+    , @
+    
+    ns.socket.on "disconnect", _.bind ->
+      @model.set "connected", false
     , @
 
     @render()
