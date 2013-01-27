@@ -201,26 +201,6 @@ function main(stylusOpts) {
           handShakeData.session = sess;
           accept(null, true);
         });
-        /*
-        express.session.Store.load(handShakeData.sessionID, function(err, sess){
-          if (err || !sess) {
-            //can't  get session information from the store
-            return accept('session retrieval error', false);
-          }
-          console.log("loaded session on socket authentication ->");
-          console.log(sess);
-          handShakeData.session = sess;
-          accept(null, true);
-        });
-        
-        redisStore.get(handShakeData.sessionID, function(err, reply) {
-          if (err || !reply) {
-            //can't  get session information from the store
-            return accept('session retrieval error', false);
-          }
-          handShakeData.session = new Session(handShakeData, reply);
-          accept(null, true);
-        });*/
     } else {
        // if there isn't, turn down the connection with a message
        // and leave the function.
@@ -232,7 +212,7 @@ function main(stylusOpts) {
   io.sockets.on("connection", function (socket) {
     //session stuff
     var hs = socket.handshake;
-    // setup an inteval that will keep our session fresh
+    // setup an interval that will keep our session fresh
     var intervalID = setInterval(function () {
         // reload the session (just in case something changed,
         // we don't want to override anything, but the age)
@@ -304,6 +284,10 @@ function main(stylusOpts) {
     
     //listen for chat messages
     socket.on("chatMessage", function(data) {
+      //if the user is logged in, override the nickname with the username
+      if (hs.session.user) {
+        data.nickname = hs.session.user.username;
+      }
       redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
         redisClient.ltrim("chatMessages", 0, 19, function(err, reply) {
         });

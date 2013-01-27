@@ -1,8 +1,12 @@
+//set up the redis context
 var redis = require('redis');
 var redisClient = redis.createClient(6379, "70.89.137.93");
 redisClient.auth("cauVK8QGb5neYUKGnQrMyEIU");
+
+//flush the db, start fresh
 redisClient.flushdb();
 
+/*
 //test user model
 var User = require('./models/user')(redisClient);
 var scott = new User({username:'svickers', email:'sup@supmail.com', password:'sostrongpassword'});
@@ -73,3 +77,4 @@ function PrintUserInfo(err, usr, pass, cb) {
     });
   });
 }
+*/

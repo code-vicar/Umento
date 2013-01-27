@@ -88,57 +88,10 @@ input
     font-size 26px
     font-weight bold
     text-transform uppercase
-  .login
-    absolute top right
-    clearfix()
-    .button
-      float right
-      margin 4px 4px 0px 0px
-      padding 4px
-      font-size 22px
-      font-weight bold
-      border-radius 7px
-      cursor pointer
-      background linear-gradient(bottom, #CCC, #555)
-      box-shadow inset 0px 2px 0px rgb(165,165,165), inset -2px 0px 0px #222
-      transition all 0.1s linear
-      &:active
-        box-shadow none
-        transform translate(2px,-2px)
-      &:focus
-        outline none
-        box-shadow inset 0px 2px 0px rgb(165,165,165), inset -2px 0px 0px #222, 0px 0px 10px 4px #bbf
-      span
-        color white
-        border-radius 7px
-
-    .accountForm
-      float right
-      border-radius left 7px
-      background linear-gradient(left, rgba(255,255,255,.8) 50%, rgba(0,0,0,.8) 70%)
-      display none
-      fieldset[name="email"]
-        display none
-
-    .usernameDisplay
-      font bold 24px 'DroidSansMonoRegular', Verdana, sans-serif
-      border-radius 7px
-      padding 5px
-      background silver
-      &:before
-        content 'Welcome '
-
-    .message
-      float right
-      display none
-      border-radius left 7px
-      font-size 26px
-      background linear-gradient(left, rgba(255,51,28,.8) 50%, rgba(0,0,0,.8) 70%)
 
 .primarynav
   column 12
   ul
-    float left
     list-style-type none
     margin 0
     padding 0
@@ -147,9 +100,6 @@ input
       margin-right 5px
     li:last-child
       margin-right 0px
-  .login
-    float right
-  clearfix()
 
 .mainsection
   column 9
@@ -160,6 +110,64 @@ input
   column 12
   text-align right
 
+//Login styles (Login.html template)
+.login
+  absolute top right
+  clearfix()
+  .button
+    float right
+    margin 4px 4px 0px 0px
+    padding 4px
+    font-size 22px
+    font-weight bold
+    border-radius 7px
+    cursor pointer
+    background linear-gradient(bottom, #CCC, #555)
+    box-shadow inset 0px 2px 0px rgb(165,165,165), inset -2px 0px 0px #222
+    transition all 0.1s linear
+    &:active
+      box-shadow none
+      transform translate(2px,-2px)
+    &:focus
+      outline none
+      box-shadow inset 0px 2px 0px rgb(165,165,165), inset -2px 0px 0px #222, 0px 0px 10px 4px #bbf
+    span
+      color white
+      border-radius 7px
+
+  .accountForm
+    float right
+    border-radius 7px
+    background linear-gradient(left, rgba(255,255,255,.8) 50%, rgba(0,0,0,.8) 70%)
+    display none
+    td
+      padding 7px
+      text-align center
+      vertical-align middle
+    fieldset
+      label
+        display inline-block
+        width 80px
+    fieldset[name="email"]
+      display none
+
+  .usernameDisplay
+    font bold 24px 'DroidSansMonoRegular', Verdana, sans-serif
+    border-radius 7px
+    padding 5px
+    background silver
+    &:before
+      content 'Welcome '
+
+  .message
+    float right
+    display none
+    border-radius left 7px
+    font-size 26px
+    background linear-gradient(left, rgba(255,51,28,.8) 50%, rgba(0,0,0,.8) 70%)
+
+
+//Chat message styles (Message.html template)
 .messages
   padding 10px
   border solid #BB5422 2px
@@ -167,42 +175,40 @@ input
   background-color rgb(136,136,255)
   color black
 
-.message
-  background-color white
-  border-bottom solid #000 1px
-  border-left solid #000 1px
-  border-radius left 7px
-  &:first-child
-    border-top solid #000 1px
-  clearfix()
-
-.nickname
-  font-family Verdana, sans-serif
-  font-weight bold
-  text-shadow -1px 0 1px rgba(#000,.5)
-  display block
-
-.ts
-  font-size 8px
+  .message
+    background-color white
+    border-bottom solid #000 1px
+    border-left solid #000 1px
+    border-radius left 7px
+    &:first-child
+      border-top solid #000 1px
+    clearfix()
   
-.messageHead
-.messageText
-  float left
-
-.messageHead
-  padding 8px
-  min-width 120px
-  background #0B4A8A
-    //IE6-9
-  filter unquote('progid:DXImageTransform.Microsoft.gradient( startColorstr=#77A6F7, endColorstr=#0B4A8A,GradientType=1 )')
-  background linear-gradient(left, #77A6F7, #42679E, #0B4A8A)
-  border solid 1px #0B4A8A
-  border-radius left 7px
-  color white
-
-.messageText
-  margin-left 5px
-  line-height 2
+    .messageHead
+    .messageText
+      float left
+    
+    .messageHead
+      padding 8px
+      min-width 120px
+      background #0B4A8A
+        //IE6-9
+      filter unquote('progid:DXImageTransform.Microsoft.gradient( startColorstr=#77A6F7, endColorstr=#0B4A8A,GradientType=1 )')
+      background linear-gradient(left, #77A6F7, #42679E, #0B4A8A)
+      border solid 1px #0B4A8A
+      border-radius left 7px
+      color white
+      .nickname
+        font-family Verdana, sans-serif
+        font-weight bold
+        text-shadow -1px 0 1px rgba(#000,.5)
+        display block
+      .ts
+        font-size 8px
+    
+    .messageText
+      margin-left 5px
+      line-height 2
 
 
 @media screen and (max-width: 720px)

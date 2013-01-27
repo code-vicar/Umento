@@ -166,21 +166,54 @@ input #inVal {
   font-weight: bold;
   text-transform: uppercase;
 }
-.mainheader .login {
+.primarynav {
+  display: inline;
+  float: left;
+  width: 97.91666666666666%;
+  margin: 0 1.0416666666666665%;
+}
+.primarynav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.primarynav ul li {
+  display: inline;
+  margin-right: 5px;
+}
+.primarynav ul li:last-child {
+  margin-right: 0px;
+}
+.mainsection {
+  display: inline;
+  float: left;
+  width: 72.91666666666666%;
+  margin: 0 1.0416666666666665%;
+  margin-left: 26.041666666666668%;
+  min-height: 800px;
+}
+.mainfooter {
+  display: inline;
+  float: left;
+  width: 97.91666666666666%;
+  margin: 0 1.0416666666666665%;
+  text-align: right;
+}
+.login {
   position: absolute;
   top: 0;
   right: 0;
   *zoom: 1;
 }
-.mainheader .login:before,
-.mainheader .login:after {
+.login:before,
+.login:after {
   content: "";
   display: table;
 }
-.mainheader .login:after {
+.login:after {
   clear: both;
 }
-.mainheader .login .button {
+.login .button {
   float: right;
   margin: 4px 4px 0px 0px;
   padding: 4px;
@@ -203,7 +236,7 @@ input #inVal {
   -ms-transition: all 0.1s linear;
   transition: all 0.1s linear;
 }
-.mainheader .login .button:active {
+.login .button:active {
   -webkit-box-shadow: none;
   box-shadow: none;
   -webkit-transform: translate(2px, -2px);
@@ -212,22 +245,20 @@ input #inVal {
   -ms-transform: translate(2px, -2px);
   transform: translate(2px, -2px);
 }
-.mainheader .login .button:focus {
+.login .button:focus {
   outline: none;
   -webkit-box-shadow: inset 0px 2px 0px #a5a5a5, inset -2px 0px 0px #222, 0px 0px 10px 4px #bbf;
   box-shadow: inset 0px 2px 0px #a5a5a5, inset -2px 0px 0px #222, 0px 0px 10px 4px #bbf;
 }
-.mainheader .login .button span {
+.login .button span {
   color: #fff;
   -webkit-border-radius: 7px;
   border-radius: 7px;
 }
-.mainheader .login .accountForm {
+.login .accountForm {
   float: right;
-  -webkit-border-top-left-radius: 7px;
-  border-top-left-radius: 7px;
-  -webkit-border-bottom-left-radius: 7px;
-  border-bottom-left-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
   background: -webkit-gradient(linear, left top, right top, color-stop(0.5, rgba(255,255,255,0.8)), color-stop(0.7, rgba(0,0,0,0.8)));
   background: -webkit-linear-gradient(left, rgba(255,255,255,0.8) 50%, rgba(0,0,0,0.8) 70%);
   background: -moz-linear-gradient(left, rgba(255,255,255,0.8) 50%, rgba(0,0,0,0.8) 70%);
@@ -236,20 +267,29 @@ input #inVal {
   background: linear-gradient(left, rgba(255,255,255,0.8) 50%, rgba(0,0,0,0.8) 70%);
   display: none;
 }
-.mainheader .login .accountForm fieldset[name="email"] {
+.login .accountForm td {
+  padding: 7px;
+  text-align: center;
+  vertical-align: middle;
+}
+.login .accountForm fieldset label {
+  display: inline-block;
+  width: 80px;
+}
+.login .accountForm fieldset[name="email"] {
   display: none;
 }
-.mainheader .login .usernameDisplay {
+.login .usernameDisplay {
   font: bold 24px 'DroidSansMonoRegular', Verdana, sans-serif;
   -webkit-border-radius: 7px;
   border-radius: 7px;
   padding: 5px;
   background: #c0c0c0;
 }
-.mainheader .login .usernameDisplay:before {
+.login .usernameDisplay:before {
   content: 'Welcome ';
 }
-.mainheader .login .message {
+.login .message {
   float: right;
   display: none;
   -webkit-border-top-left-radius: 7px;
@@ -264,52 +304,6 @@ input #inVal {
   background: -ms-linear-gradient(left, rgba(255,51,28,0.8) 50%, rgba(0,0,0,0.8) 70%);
   background: linear-gradient(left, rgba(255,51,28,0.8) 50%, rgba(0,0,0,0.8) 70%);
 }
-.primarynav {
-  display: inline;
-  float: left;
-  width: 97.91666666666666%;
-  margin: 0 1.0416666666666665%;
-  *zoom: 1;
-}
-.primarynav ul {
-  float: left;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-.primarynav ul li {
-  display: inline;
-  margin-right: 5px;
-}
-.primarynav ul li:last-child {
-  margin-right: 0px;
-}
-.primarynav .login {
-  float: right;
-}
-.primarynav:before,
-.primarynav:after {
-  content: "";
-  display: table;
-}
-.primarynav:after {
-  clear: both;
-}
-.mainsection {
-  display: inline;
-  float: left;
-  width: 72.91666666666666%;
-  margin: 0 1.0416666666666665%;
-  margin-left: 26.041666666666668%;
-  min-height: 800px;
-}
-.mainfooter {
-  display: inline;
-  float: left;
-  width: 97.91666666666666%;
-  margin: 0 1.0416666666666665%;
-  text-align: right;
-}
 .messages {
   padding: 10px;
   border: solid #bb5422 2px;
@@ -318,7 +312,7 @@ input #inVal {
   background-color: #88f;
   color: #000;
 }
-.message {
+.messages .message {
   background-color: #fff;
   border-bottom: solid #000 1px;
   border-left: solid #000 1px;
@@ -328,31 +322,22 @@ input #inVal {
   border-bottom-left-radius: 7px;
   *zoom: 1;
 }
-.message:first-child {
+.messages .message:first-child {
   border-top: solid #000 1px;
 }
-.message:before,
-.message:after {
+.messages .message:before,
+.messages .message:after {
   content: "";
   display: table;
 }
-.message:after {
+.messages .message:after {
   clear: both;
 }
-.nickname {
-  font-family: Verdana, sans-serif;
-  font-weight: bold;
-  text-shadow: -1px 0 1px rgba(0,0,0,0.5);
-  display: block;
-}
-.ts {
-  font-size: 8px;
-}
-.messageHead,
-.messageText {
+.messages .message .messageHead,
+.messages .message .messageText {
   float: left;
 }
-.messageHead {
+.messages .message .messageHead {
   padding: 8px;
   min-width: 120px;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=#77A6F7, endColorstr=#0B4A8A,GradientType=1 );
@@ -369,7 +354,16 @@ input #inVal {
   border-bottom-left-radius: 7px;
   color: #fff;
 }
-.messageText {
+.messages .message .messageHead .nickname {
+  font-family: Verdana, sans-serif;
+  font-weight: bold;
+  text-shadow: -1px 0 1px rgba(0,0,0,0.5);
+  display: block;
+}
+.messages .message .messageHead .ts {
+  font-size: 8px;
+}
+.messages .message .messageText {
   margin-left: 5px;
   line-height: 2;
 }
