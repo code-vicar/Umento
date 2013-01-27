@@ -169,9 +169,7 @@ function main(stylusOpts) {
   
   function renderAbout(req, res) {
     res.ViewData.title = "Monumentous - About";
-    res.render("about", {
-      "title":res.ViewData
-    });
+    res.render("about", res.ViewData);
   }
   
   app.get("/", function(req, res) {
