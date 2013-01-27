@@ -33,37 +33,52 @@ app.configure('development', function() {
     compile: compileStyl
   };
   
-  main(stylusOpts);
-});
-
-//app fog umento.hp.af.cm production settings
-app.configure('production', function() {
-  console.log("in production");
-  var servicesEnv = JSON.parse(process.env.VCAP_SERVICES);
-  var redisCreds = servicesEnv["redis-2.2"][0].credentials;
-  app.set("umento_httpPort", process.env.VCAP_APP_PORT);
-  app.set("umento_redisHost", redisCreds.host);
-  app.set("umento_redisPort", redisCreds.port);
-  app.set("umento_redisAuth", redisCreds.password);
-  var stylusOpts = {
-    src: __dirname + '/lib',
-    dest: __dirname + '/public',
-    compile: compileStyl
-  };
-  
-  main(stylusOpts);
-});
-
-function main(stylusOpts) {
-    
   console.log("redis host: " + app.get("umento_redisHost"));
   console.log("redis port: " + app.get("umento_redisPort"));
   console.log("redis auth: " + app.get("umento_redisAuth"));
   
   var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
   redisClient.auth(app.get("umento_redisAuth"));
+  //dev database is 0, which is default
   var redisStore = new RedisStore({client: redisClient});
   
+  main(stylusOpts, redisClient, redisStore);
+});
+
+//app fog umento.hp.af.cm production settings
+app.configure('production', function() {
+  console.log("in production");
+  //var servicesEnv = JSON.parse(process.env.VCAP_SERVICES);
+  //var redisCreds = servicesEnv["redis-2.2"][0].credentials;
+  app.set("umento_httpPort", process.env.VCAP_APP_PORT);
+  //app.set("umento_redisHost", redisCreds.host);
+  //app.set("umento_redisPort", redisCreds.port);
+  //app.set("umento_redisAuth", redisCreds.password);
+  app.set("umento_redisHost", "70.89.137.93");
+  app.set("umento_redisPort", 6379);
+  app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
+  var stylusOpts = {
+    src: __dirname + '/lib',
+    dest: __dirname + '/public',
+    compile: compileStyl
+  };
+  
+  console.log("redis host: " + app.get("umento_redisHost"));
+  console.log("redis port: " + app.get("umento_redisPort"));
+  console.log("redis auth: " + app.get("umento_redisAuth"));
+  
+  var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
+  redisClient.auth(app.get("umento_redisAuth"));
+  //change to the production database
+  redisClient.select(1, function() {
+    var redisStore = new RedisStore({client: redisClient});
+  
+    main(stylusOpts, redisClient, redisStore);
+  });
+});
+
+function main(stylusOpts, redisClient, redisStore) {
+    
   //general configurations
   app.set('title', 'Try Umento');
   app.set('views', __dirname + '/views');
@@ -118,7 +133,7 @@ function main(stylusOpts) {
   });
   
   //socket.io settings
-  io.configure('production', function() {
+  io.configure(function() {
     io.enable('browser client minification');  // send minified client
     io.enable('browser client etag');          // apply etag caching logic based on version number
     io.enable('browser client gzip');          // gzip the file
