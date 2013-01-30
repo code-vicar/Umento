@@ -15,3 +15,12 @@ $ ->
   #main home view
   home = new HomeAPI.Home({})
   homeView = new HomeAPI.HomeView el:$('.mainsection'), model:home, ConnectedUsersView:connectedUsersView, MessagesView:messagesView
+  
+  checkConnection = ->
+    if ns.socket.socket.connected
+      home.set 'connected', true
+      clearInterval intervalID
+  
+  intervalID = setInterval checkConnection, 1500
+  
+  return

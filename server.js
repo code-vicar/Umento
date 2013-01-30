@@ -9,6 +9,8 @@ var cnCoffeeScript = require('connect-coffee-script');
 var utils = require('./utils');
 //var moment = require('public/js/moment');
 
+var MINUTE = 60000;
+
 var RedisStore = connectRedis(express);
 var app = express();
 var server = http.createServer(app);
@@ -75,6 +77,11 @@ app.configure('production', function() {
   
     main(stylusOpts, redisClient, redisStore);
   });
+  
+  //set up a regular redis ping command to keep the connection open
+  setInterval(function() {
+    redisClient.ping();
+  }, 30*MINUTE);
 });
 
 function main(stylusOpts, redisClient, redisStore) {

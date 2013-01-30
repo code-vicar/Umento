@@ -10,7 +10,7 @@
   ConnectedUsersAPI = ns.require("/js/ConnectedUsers");
 
   $(function() {
-    var connectedUsers, connectedUsersView, home, homeView, messages, messagesView, seedData;
+    var checkConnection, connectedUsers, connectedUsersView, home, homeView, intervalID, messages, messagesView, seedData;
     seedData = JSON.parse($("#hdnMessages").val());
     messages = new MessageAPI.Messages(seedData);
     messagesView = new MessageAPI.MessagesView({
@@ -21,12 +21,19 @@
       model: connectedUsers
     });
     home = new HomeAPI.Home({});
-    return homeView = new HomeAPI.HomeView({
+    homeView = new HomeAPI.HomeView({
       el: $('.mainsection'),
       model: home,
       ConnectedUsersView: connectedUsersView,
       MessagesView: messagesView
     });
+    checkConnection = function() {
+      if (ns.socket.socket.connected) {
+        home.set('connected', true);
+        return clearInterval(intervalID);
+      }
+    };
+    intervalID = setInterval(checkConnection, 1500);
   });
 
 }).call(this);
