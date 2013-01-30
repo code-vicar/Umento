@@ -110,6 +110,9 @@
       ns.socket.on("chatMessage", _.bind(function(data) {
         return this.collection.add(data);
       }, this));
+      ns.socket.on("chatCorrection", _.bind(function(data) {
+        return this.collection.at(data.index).set("nickname", data.nickname);
+      }, this));
       return this.render();
     };
 

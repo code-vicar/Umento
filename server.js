@@ -170,7 +170,7 @@ function main(stylusOpts, redisClient, redisStore) {
     //console.log(req.session);
     //console.log("view data ->");
     //console.log(res.ViewData);
-    redisClient.lrange("chatMessages", 0, -1, function(err, reply) {
+    redisClient.lrange("chatMessages", 0, 19, function(err, reply) {
       reply = reply ? reply : [];
       var msgs = [];
       reply.forEach(function(msg){
@@ -200,7 +200,7 @@ function main(stylusOpts, redisClient, redisStore) {
     if (handShakeData.headers.cookie) {
         // if there is, parse the cookie
         handShakeData.cookie = utils.cookie.parse(handShakeData.headers.cookie);
-        handShakeData.sessionID =  utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
+        handShakeData.sessionID = utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
         //handShakeData.sessionStore = redisStore;
         //console.log("socket auth handshake data -> ");
         //console.log(handShakeData);
@@ -298,15 +298,29 @@ function main(stylusOpts, redisClient, redisStore) {
     //listen for chat messages
     socket.on("chatMessage", function(data) {
       //if the user is logged in, override the nickname with the username
+      var pushData = {
+        nickname: data.nickname,
+        message: data.message,
+        ts: data.ts
+      };
       if (hs.session.user) {
-        data.nickname = hs.session.user.username;
+        pushData.nickname = hs.session.user.username;
       }
-      redisClient.lpush("chatMessages", JSON.stringify(data), function(err, reply) {
-        redisClient.ltrim("chatMessages", 0, 19, function(err, reply) {
-        });
+      
+      redisClient.lpush("chatMessages", JSON.stringify(pushData), function(err, reply) {
+        //redisClient.ltrim("chatMessages", 0, 19, function(err, reply) {
+        //});
       });
       
-      socket.broadcast.emit("chatMessage", data);
+      //the client already knows that it submitted a message, but the server may have overwritten some of it
+      //  so we'll send the corrections back to that client so that it has the final copy
+      (function() {
+        pushData.index = data.index;
+        socket.emit("chatCorrection", pushData); 
+      })();
+      
+      //the other clients get the corrected data also as normal message emits
+      socket.broadcast.emit("chatMessage", pushData);
     });
     
     //listen for socket disconnections

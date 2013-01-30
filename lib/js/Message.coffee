@@ -54,6 +54,10 @@ class MessagesView extends UmView
       @collection.add data
     , @)
     
+    ns.socket.on "chatCorrection", _.bind((data) ->
+      @collection.at(data.index).set("nickname",data.nickname)
+    , @)
+    
     @render()
 
   render: ->

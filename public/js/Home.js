@@ -74,8 +74,9 @@
         if ((nick != null) && nick.length > 0) {
           msg.nickname = nick;
         }
-        ns.socket.emit('chatMessage', msg);
         this.MessagesView.collection.add(new MessageAPI.Message(msg));
+        msg.index = this.MessagesView.collection.length - 1;
+        ns.socket.emit('chatMessage', msg);
         return nPut.val("");
       }
     };

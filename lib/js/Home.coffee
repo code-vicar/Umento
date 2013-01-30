@@ -42,9 +42,11 @@ class HomeView extends UmView
     if txt.length > 0 and ns.socket?
       msg = ts:moment().format("YYYY-MM-DDTHH:mm:ss"), message:txt
       msg.nickname = nick if nick? and nick.length > 0
+      @MessagesView.collection.add new MessageAPI.Message msg
+      msg.index = (@MessagesView.collection.length - 1)
       
       ns.socket.emit 'chatMessage', msg
-      @MessagesView.collection.add new MessageAPI.Message msg
+      
       nPut.val("")
 
   events:
