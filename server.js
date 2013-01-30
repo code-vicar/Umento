@@ -10,6 +10,8 @@ var utils = require('./utils');
 //var moment = require('public/js/moment');
 
 var MINUTE = 60000;
+//two hour max age
+var COOKIEMAXAGE = 2*60*MINUTE;
 
 var RedisStore = connectRedis(express);
 var app = express();
@@ -101,7 +103,8 @@ function main(stylusOpts, redisClient, redisStore) {
   app.use(express.session({
     secret: cookieSecret,
     key: 'umento.sid',
-    store: redisStore
+    store: redisStore,
+    cookie: { path:'/', httpOnly:true, maxAge:COOKIEMAXAGE }
   }));
   app.use(stylus.middleware(stylusOpts));
   app.use(cnCoffeeScript({
@@ -177,6 +180,7 @@ function main(stylusOpts, redisClient, redisStore) {
     //console.log(req.session);
     //console.log("view data ->");
     //console.log(res.ViewData);
+    console.log(req.session);
     redisClient.lrange("chatMessages", 0, 19, function(err, reply) {
       reply = reply ? reply : [];
       var msgs = [];
@@ -194,12 +198,21 @@ function main(stylusOpts, redisClient, redisStore) {
     res.render("about", res.ViewData);
   }
   
+  function renderGame(req, res) {
+    res.ViewData.title = "Monumentous - Game";
+    res.render("game", res.ViewData);
+  }
+  
   app.get("/", function(req, res) {
     renderHome(req, res);
   });
   
   app.get("/about", function(req, res) {
     renderAbout(req, res);
+  });
+  
+  app.get("/game", function(req, res) {
+    renderGame(req, res);
   });
   
   function socketAuth(handShakeData, accept) {
@@ -211,7 +224,7 @@ function main(stylusOpts, redisClient, redisStore) {
         //handShakeData.sessionStore = redisStore;
         //console.log("socket auth handshake data -> ");
         //console.log(handShakeData);
-        redisStore.load(handShakeData.sessionID, function(err, sess){
+        redisStore.load(handShakeData.sessionID, function(err, sess) {
           if (err || !sess) {
             //can't  get session information from the store
             return accept('session retrieval error', false);
@@ -269,6 +282,7 @@ function main(stylusOpts, redisClient, redisStore) {
             socket.emit("createAccount", {result:false});
           } else {
             hs.session.user = savedUser;
+            hs.session.save();
             socket.emit("createAccount", {result:true, username:savedUser.username});
           }
         });
@@ -285,16 +299,22 @@ function main(stylusOpts, redisClient, redisStore) {
             socket.emit("login", {result:false});
           } else {
             //authenticated
+            //hs.session.user = user;
+            //hs.session.save();
+            //socket.emit("login", {result:true, username:user.username});
+            
             hs.session.regenerate(function(err) {
               if (err) {
                 console.log("failed to regenerate user session");
                 socket.emit("login", {result:false});
               } else {
                 hs.session.user = user;
+                hs.session.save();
                 //console.log(hs.session);
                 socket.emit("login", {result:true, username:user.username});
               }
             });
+            
           }
         });
       } else {
