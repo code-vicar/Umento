@@ -303,5 +303,9 @@ body {
   float: left;
   width: 97.91666666666666%;
   margin: 0 1.0416666666666665%;
-  min-height: 800px;
+  height: 800px;
+}
+#cr-stage {
+  width: 100% !important;
+  height: inherit !important;
 }
