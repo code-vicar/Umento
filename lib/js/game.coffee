@@ -8,23 +8,45 @@ $ ->
   
   Crafty.background("green")
   
-  #Crafty.e("2D, DOM, Color, Fourway").attr({w: 50, h: 50, x: 0, y: 0}).color("#EEE").fourway(5)
   SPRITESIZE = 32
-  Crafty.sprite(SPRITESIZE,'/game/art/PathAndObjects.png', { grass:[0,0], grass2:[1,0], grass3:[0,1], grass4:[1,1] })
-  
-  Crafty.e("2D, DOM, grass").attr
-    x:0
-    y:0
+  LOGS = 10
+  Crafty.sprite(SPRITESIZE,'/game/art/PathAndObjects.png',
+  {
+    grass:[1,11],
+    log:[6,10],
+    pot:[12,11,1,2]
     
-  Crafty.e("2D, DOM, grass2").attr
-    x:SPRITESIZE
-    y:0
-  Crafty.e("2D, DOM, grass2").attr
-    x:SPRITESIZE*2
-    y:0
-  Crafty.e("2D, DOM, grass3").attr
-    x:0
-    y:SPRITESIZE
-  Crafty.e("2D, DOM, grass4").attr
-    x:SPRITESIZE
-    y:SPRITESIZE
+  })
+  
+  scenemap = { h:0, w:0, axis:[] }
+  
+  scenemap.w = Math.ceil(Crafty.stage.elem.clientWidth/SPRITESIZE)
+  scenemap.h = Math.ceil(Crafty.stage.elem.clientHeight/SPRITESIZE)
+  
+  drawBackground = (xaxis, yaxis)->
+    posX = xaxis*SPRITESIZE
+    posY = yaxis*SPRITESIZE
+    #initialize the yaxis at this xaxis location
+    scenemap.axis[xaxis] = [] unless scenemap.axis[xaxis]?
+    scenemap.axis[xaxis][yaxis] = [] unless scenemap.axis[xaxis][yaxis]?
+    scenemap.axis[xaxis][yaxis].push(Crafty.e("2D, DOM, grass").attr({x:posX,y:posY}))
+    
+  addLog = ->
+    xaxis = Crafty.math.randomInt(0,(scenemap.w-1))
+    yaxis = Crafty.math.randomInt(0,(scenemap.h-1))
+    posX = xaxis*SPRITESIZE
+    posY = yaxis*SPRITESIZE
+    scenemap.axis[xaxis] = [] unless scenemap.axis[xaxis]?
+    scenemap.axis[xaxis][yaxis] = [] unless scenemap.axis[xaxis][yaxis]?
+    scenemap.axis[xaxis][yaxis].push(Crafty.e("2D, DOM, log").attr({x:posX,y:posY}))
+    
+  for x in [0..(scenemap.w-1)]
+    do (x) ->
+      drawBackground x,y for y in [0..(scenemap.h-1)]
+  
+  (->
+    logs = LOGS+1
+    addLog() while (logs -= 1)
+  )()
+      
+  Crafty.e("2D, DOM, pot, Fourway").attr({x: 0, y: 0}).fourway(5)
