@@ -18,6 +18,11 @@ $ ->
     
   })
   
+  Crafty.audio.add
+    lounge:["/game/sound/SomewhereSunny.mp3", "/game/sound/SomewhereSunny.ogg", "/game/sound/SomewhereSunny.wav"]
+    
+  Crafty.audio.play('lounge',-1,1)
+  
   scenemap = { h:0, w:0, axis:[] }
   
   scenemap.w = Math.ceil(Crafty.stage.elem.clientWidth/SPRITESIZE)
