@@ -138,7 +138,7 @@ a:link,
 a:visited {
   outline: none;
   text-decoration: none;
-  color: #fff;
+  color: #00f;
   border: none;
 }
 .mainheader {
@@ -177,6 +177,9 @@ a:visited {
 .primarynav ul li {
   display: inline;
   margin-right: 5px;
+}
+.primarynav ul li a {
+  color: #fff;
 }
 .primarynav ul li:last-child {
   margin-right: 0px;

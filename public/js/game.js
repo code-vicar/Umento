@@ -1,17 +1,81 @@
 (function() {
+  var mainScene;
 
   $(function() {
-    var Crafty, LOGS, SPRITESIZE, addLog, drawBackground, ns, scenemap, x, _fn, _i, _ref;
+    var Crafty, ns;
     ns = window.Umento = window.Umento || {};
     Crafty = window.Crafty;
     Crafty.init();
     Crafty.background("green");
+    return Crafty.load(["/game/art/PathAndObjects.png", "/game/art/Player.png", "/game/sound/SomewhereSunny.mp3", "/game/sound/SomewhereSunny.ogg", "/game/sound/SomewhereSunny.wav"], function() {
+      return mainScene();
+    });
+  });
+
+  mainScene = function() {
+    var LOGS, SPRITESIZE, addLog, drawBackground, scenemap, x, _fn, _i, _ref;
     SPRITESIZE = 32;
     LOGS = 10;
-    Crafty.sprite(SPRITESIZE, '/game/art/PathAndObjects.png', {
+    Crafty.c('LeftControls', {
+      init: function() {
+        this.requires('Multiway');
+      },
+      leftControls: function(speed) {
+        this.multiway(speed, {
+          W: -90,
+          S: 90,
+          D: 0,
+          A: 180
+        });
+        return this;
+      }
+    });
+    Crafty.c('Human', {
+      init: function() {
+        this.requires("SpriteAnimation, Collision, Grid");
+        this.animate("walk", 0, 0, 4);
+        this.bind('NewDirection', function(direction) {
+          if (direction.x < 0) {
+            if (!this.isPlaying("walk")) {
+              this.stop().animate("walk", 15, -1);
+            }
+          }
+          if (direction.x > 0) {
+            if (!this.isPlaying("walk")) {
+              this.stop().animate("walk", 15, -1);
+            }
+          }
+          if (direction.y < 0) {
+            if (!this.isPlaying("walk")) {
+              this.stop().animate("walk", 15, -1);
+            }
+          }
+          if (direction.y > 0) {
+            if (!this.isPlaying("walk")) {
+              this.stop().animate("walk", 15, -1);
+            }
+          }
+          if (!direction.x && !direction.y) {
+            return this.stop();
+          }
+        });
+        this.bind('Moved', function(from) {
+          if (this.hit('solid')) {
+            return this.attr({
+              x: from.x,
+              y: from.y
+            });
+          }
+        });
+      }
+    });
+    Crafty.sprite(SPRITESIZE, "/game/art/PathAndObjects.png", {
       grass: [1, 11],
       log: [6, 10],
       pot: [12, 11, 1, 2]
+    });
+    Crafty.sprite(36, "/game/art/Player.png", {
+      player: [0, 0, 1, 2]
     });
     Crafty.audio.add({
       lounge: ["/game/sound/SomewhereSunny.mp3", "/game/sound/SomewhereSunny.ogg", "/game/sound/SomewhereSunny.wav"]
@@ -76,10 +140,11 @@
       }
       return _results;
     })();
-    return Crafty.e("2D, DOM, pot, Fourway").attr({
+    return Crafty.e("2D, DOM, player, Human, LeftControls").attr({
       x: 0,
-      y: 0
-    }).fourway(5);
-  });
+      y: 0,
+      z: 10
+    }).leftControls(1);
+  };
 
 }).call(this);

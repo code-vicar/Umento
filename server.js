@@ -113,7 +113,7 @@ function main(stylusOpts, redisClient, redisStore) {
   }));
   app.use(globalViewData);
   app.use(app.router);
-  app.use(express.static(__dirname + '/public'));
+  app.use(express.static(__dirname + '/public', {maxAge:86400}));
   
   app.use(function(req, res, next) {
     res.status(404);
@@ -159,6 +159,9 @@ function main(stylusOpts, redisClient, redisStore) {
     'Pragma':'no-cache',
     'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
     'Expires':'0'
+  };
+  var cacheHeaders = {
+    'Cache-Control':'max-age=86400'
   };
     
   function globalViewData(req, res, next) {
