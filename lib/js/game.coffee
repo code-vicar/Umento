@@ -26,7 +26,6 @@ $ ->
       "/game/art/Player.png"
       "/game/sound/SomewhereSunny.mp3"
       "/game/sound/SomewhereSunny.ogg"
-      "/game/sound/SomewhereSunny.wav"
     ], ->
       Crafty.scene "main"
     , (e)->

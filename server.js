@@ -132,6 +132,10 @@ function main(stylusOpts, redisClient, redisStore) {
   });
   
   var User = require('./models/user')(redisClient);
+  //var GameState = require('./models/gamestate');
+  //var gs = new GameState({w:100,h:100,logs:10});
+  //gs.initialize();
+  //console.log(gs);
   
   server.listen(app.get("umento_httpPort"));
   var io = socketio.listen(server);
