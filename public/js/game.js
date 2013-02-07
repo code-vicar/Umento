@@ -1,22 +1,23 @@
 (function() {
 
   $(function() {
-    var Crafty, alertError, ns, updateLoading;
+    var Crafty, gs, logError, logUpdate, ns;
     ns = window.Umento = window.Umento || {};
     Crafty = window.Crafty;
     Crafty.init();
-    updateLoading = function(e) {
+    logUpdate = function(e) {
       console.log("loading update");
       return console.log(e);
     };
-    alertError = function(e) {
-      alert("there was an error loading game assets");
+    logError = function(e) {
       console.log("loading error");
       return console.log(e);
     };
+    gs = {};
     Crafty.scene("loading", function() {
+      var LoadingTxt;
       Crafty.background("#000");
-      Crafty.e("2D, DOM, Text").attr({
+      LoadingTxt = Crafty.e("2D, DOM, Text").attr({
         w: 100,
         h: 20,
         x: 150,
@@ -26,31 +27,49 @@
         "text-align": "center"
       });
       return Crafty.load(["/game/art/PathAndObjects.png", "/game/art/Player.png", "/game/sound/SomewhereSunny.mp3", "/game/sound/SomewhereSunny.ogg", "/game/sound/SomewhereSunny.wav"], function() {
-        return Crafty.scene("main");
+        LoadingTxt.text("Requesting State");
+        return $.ajax({
+          url: "/gamestate.json",
+          dataType: "json",
+          success: function(data, textStatus, jqXHR) {
+            gs = data;
+            return Crafty.scene("main");
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            logError({
+              jqXHR: jqXHR,
+              textStatus: textStatus,
+              errorThrown: errorThrown
+            });
+            return LoadingTxt.text("Error loading game state");
+          }
+        });
       }, function(e) {
-        return updateLoading(e);
+        return logUpdate(e);
       }, function(e) {
-        return alertError(e);
+        logError(e);
+        return LoadingTxt.text("Error loading assets");
       });
     });
     Crafty.scene("main", function() {
-      var LOGS, SPRITESIZE, addLog, drawBackground, scenemap, x, _fn, _i, _ref;
-      SPRITESIZE = 32;
-      LOGS = 10;
-      Crafty.c('LeftControls', {
-        init: function() {
-          this.requires('Multiway');
-        },
-        leftControls: function(speed) {
-          this.multiway(speed, {
-            W: -90,
-            S: 90,
-            D: 0,
-            A: 180
-          });
-          return this;
-        }
-      });
+      var TILESIZE, ent, entityMap, playerEnt, posX, posY, _i, _len, _ref;
+      TILESIZE = 32;
+      /*
+          Crafty.c('LeftControls', {
+            init:->
+              @requires('Multiway')
+              return
+              
+            leftControls:(speed)->
+              @multiway speed,
+                W: -90
+                S: 90
+                D: 0
+                A: 180
+              return @
+          })
+      */
+
       Crafty.c('Human', {
         init: function() {
           this.requires("SpriteAnimation, Collision, Grid");
@@ -77,23 +96,38 @@
               }
             }
             if (!direction.x && !direction.y) {
-              return this.stop();
+              this.reset();
+              return this.draw();
             }
           });
           this.bind('Moved', function(from) {
+            var MAXH, MAXW, playerMidX, playerMidY, viewportMidH, viewportMidW;
             if (this.hit('solid')) {
               return this.attr({
                 x: from.x,
                 y: from.y
               });
+            } else {
+              MAXW = gs.w * TILESIZE;
+              MAXH = gs.h * TILESIZE;
+              viewportMidW = $(Crafty.stage.elem).width() / 2;
+              viewportMidH = $(Crafty.stage.elem).height() / 2;
+              playerMidX = this.x + (this.w / 2);
+              playerMidY = this.y + (this.h / 2);
+              if (playerMidX > viewportMidW && (MAXW - playerMidX) > viewportMidW) {
+                Crafty.viewport.scroll('_x', -(playerMidX - viewportMidW));
+              }
+              if (playerMidY > viewportMidH && (MAXH - playerMidY) > viewportMidH) {
+                return Crafty.viewport.scroll('_y', -(playerMidY - viewportMidH));
+              }
             }
           });
         }
       });
-      Crafty.sprite(SPRITESIZE, "/game/art/PathAndObjects.png", {
+      Crafty.sprite(TILESIZE, "/game/art/PathAndObjects.png", {
         grass: [1, 11],
         log: [6, 10],
-        pot: [12, 11, 1, 2]
+        edge: [3, 10]
       });
       Crafty.sprite(36, "/game/art/Player.png", {
         player: [0, 0, 1, 2]
@@ -102,70 +136,29 @@
         lounge: ["/game/sound/SomewhereSunny.mp3", "/game/sound/SomewhereSunny.ogg", "/game/sound/SomewhereSunny.wav"]
       });
       Crafty.audio.play('lounge', -1, 1);
-      scenemap = {
-        h: 0,
-        w: 0,
-        axis: []
-      };
-      scenemap.w = Math.ceil(Crafty.stage.elem.clientWidth / SPRITESIZE);
-      scenemap.h = Math.ceil(Crafty.stage.elem.clientHeight / SPRITESIZE);
-      drawBackground = function(xaxis, yaxis) {
-        var posX, posY;
-        posX = xaxis * SPRITESIZE;
-        posY = yaxis * SPRITESIZE;
-        if (scenemap.axis[xaxis] == null) {
-          scenemap.axis[xaxis] = [];
+      entityMap = [];
+      _ref = gs.entities;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        ent = _ref[_i];
+        posX = ent.x * TILESIZE;
+        posY = ent.y * TILESIZE;
+        if (entityMap[ent.x] == null) {
+          entityMap[ent.x] = [];
         }
-        if (scenemap.axis[xaxis][yaxis] == null) {
-          scenemap.axis[xaxis][yaxis] = [];
+        if (entityMap[ent.x][ent.y] == null) {
+          entityMap[ent.x][ent.y] = [];
         }
-        return scenemap.axis[xaxis][yaxis].push(Crafty.e("2D, DOM, grass").attr({
+        entityMap[ent.x][ent.y].push(Crafty.e("2D, DOM, " + ent.entity).attr({
           x: posX,
           y: posY
         }));
-      };
-      addLog = function() {
-        var posX, posY, xaxis, yaxis;
-        xaxis = Crafty.math.randomInt(0, scenemap.w - 1);
-        yaxis = Crafty.math.randomInt(0, scenemap.h - 1);
-        posX = xaxis * SPRITESIZE;
-        posY = yaxis * SPRITESIZE;
-        if (scenemap.axis[xaxis] == null) {
-          scenemap.axis[xaxis] = [];
-        }
-        if (scenemap.axis[xaxis][yaxis] == null) {
-          scenemap.axis[xaxis][yaxis] = [];
-        }
-        return scenemap.axis[xaxis][yaxis].push(Crafty.e("2D, DOM, log").attr({
-          x: posX,
-          y: posY
-        }));
-      };
-      _fn = function(x) {
-        var y, _j, _ref1, _results;
-        _results = [];
-        for (y = _j = 0, _ref1 = scenemap.h - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; y = 0 <= _ref1 ? ++_j : --_j) {
-          _results.push(drawBackground(x, y));
-        }
-        return _results;
-      };
-      for (x = _i = 0, _ref = scenemap.w - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; x = 0 <= _ref ? ++_i : --_i) {
-        _fn(x);
       }
-      (function() {
-        var logs, _results;
-        logs = LOGS + 1;
-        _results = [];
-        while ((logs -= 1)) {
-          _results.push(addLog());
-        }
-        return _results;
-      })();
-      return Crafty.e("2D, DOM, player, Human, LeftControls").attr({
-        x: 0,
-        y: 0,
+      playerEnt = Crafty.e("2D, DOM, player, Human, Fourway").attr({
+        x: TILESIZE,
+        y: TILESIZE,
         z: 10
-      }).leftControls(1);
+      }).fourway(2);
+      return entityMap[1][1].push = playerEnt;
     });
     return Crafty.scene("loading");
   });

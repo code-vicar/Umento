@@ -1,6 +1,5 @@
-((exports)->
 
-  class GameState
+class GameState
     constructor:(props)->
       #set up default properties
       @h = 0
@@ -24,21 +23,23 @@
               x:x
               y:y
               entity:'grass'
+            if x is @w-1 or x is 0 or y is @h-1 or y is 0
+              @entities.push
+                x:x
+                y:y
+                entity:'edge, solid'
             
         for log in [0...@logs]
           #randomly generate x and y positions
-          x = Math.floor(Math.random()*(@w-1))
-          y = Math.floor(Math.random()*(@h-1))
+          x = (Math.floor(Math.random()*(@w-3))+1)
+          y = (Math.floor(Math.random()*(@h-3))+1)
           @entities.push
             x:x
             y:y
             entity:'log'
   
-  if typeof window isnt 'undefined' and window isnt null
-    exports = GameState
-  else
-    exports = module.exports = GameState
-    
-  return exports
+root = exports ? {}
+if exports?
+  return root = module.exports = GameState
 
-)(if typeof exports is 'undefined' then {} else exports)
+return GameState

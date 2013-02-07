@@ -132,9 +132,9 @@ function main(stylusOpts, redisClient, redisStore) {
   });
   
   var User = require('./models/user')(redisClient);
-  //var GameState = require('./models/gamestate');
-  //var gs = new GameState({w:100,h:100,logs:10});
-  //gs.initialize();
+  var GameState = require('./public/js/gamestate');
+  var gs = new GameState({w:60, h:34, logs:15});
+  gs.initialize();
   //console.log(gs);
   
   server.listen(app.get("umento_httpPort"));
@@ -163,9 +163,6 @@ function main(stylusOpts, redisClient, redisStore) {
     'Pragma':'no-cache',
     'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
     'Expires':'0'
-  };
-  var cacheHeaders = {
-    'Cache-Control':'max-age=86400'
   };
     
   function globalViewData(req, res, next) {
@@ -220,6 +217,11 @@ function main(stylusOpts, redisClient, redisStore) {
   
   app.get("/game", function(req, res) {
     renderGame(req, res);
+  });
+  
+  app.get('/gamestate.json', function(req, res) {
+    res.set('Content-Type', 'application/json');
+    res.send(gs);
   });
   
   function socketAuth(handShakeData, accept) {
