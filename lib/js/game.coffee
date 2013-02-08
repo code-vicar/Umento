@@ -53,7 +53,23 @@ $ ->
 
   Crafty.scene "main", ->
     
+    #precomputed variables
     TILESIZE = 32
+    PLAYERSPRITESIZE =
+      w:36
+      h:72
+    MAXW = gs.w*TILESIZE
+    MAXH = gs.h*TILESIZE
+    viewportMidW = $(Crafty.stage.elem).width() / 2
+    viewportMidH = $(Crafty.stage.elem).height() / 2
+    playerHalfWidth = PLAYERSPRITESIZE.w / 2
+    playerHalfHeight = PLAYERSPRITESIZE.h / 2
+    
+    adjust_size = ->
+      $(window).on "resize", ->
+        #recalculate viewport variables
+        viewportMidW = $(Crafty.stage.elem).width() / 2
+        viewportMidH = $(Crafty.stage.elem).height() / 2
     
     ###
     Crafty.c('LeftControls', {
@@ -101,12 +117,8 @@ $ ->
               x:from.x
               y:from.y
           else
-            MAXW = gs.w*TILESIZE
-            MAXH = gs.h*TILESIZE
-            viewportMidW = $(Crafty.stage.elem).width() / 2
-            viewportMidH = $(Crafty.stage.elem).height() / 2
-            playerMidX = @x + (@w / 2)
-            playerMidY = @y + (@h / 2)
+            playerMidX = @x + playerHalfWidth
+            playerMidY = @y + playerHalfHeight
             
             if playerMidX > viewportMidW and (MAXW - playerMidX) > viewportMidW
               Crafty.viewport.scroll('_x', -(playerMidX - viewportMidW))
@@ -125,7 +137,7 @@ $ ->
       edge:[3,10]
     })
     
-    Crafty.sprite(36,"/game/art/Player.png",
+    Crafty.sprite(PLAYERSPRITESIZE.w, "/game/art/Player.png",
     {
       player:[0,0,1,2]
     })

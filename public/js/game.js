@@ -52,8 +52,24 @@
       });
     });
     Crafty.scene("main", function() {
-      var TILESIZE, ent, entityMap, playerEnt, posX, posY, _i, _len, _ref;
+      var MAXH, MAXW, PLAYERSPRITESIZE, TILESIZE, adjust_size, ent, entityMap, playerEnt, playerHalfHeight, playerHalfWidth, posX, posY, viewportMidH, viewportMidW, _i, _len, _ref;
       TILESIZE = 32;
+      PLAYERSPRITESIZE = {
+        w: 36,
+        h: 72
+      };
+      MAXW = gs.w * TILESIZE;
+      MAXH = gs.h * TILESIZE;
+      viewportMidW = $(Crafty.stage.elem).width() / 2;
+      viewportMidH = $(Crafty.stage.elem).height() / 2;
+      playerHalfWidth = PLAYERSPRITESIZE.w / 2;
+      playerHalfHeight = PLAYERSPRITESIZE.h / 2;
+      adjust_size = function() {
+        return $(window).on("resize", function() {
+          viewportMidW = $(Crafty.stage.elem).width() / 2;
+          return viewportMidH = $(Crafty.stage.elem).height() / 2;
+        });
+      };
       /*
           Crafty.c('LeftControls', {
             init:->
@@ -101,19 +117,15 @@
             }
           });
           this.bind('Moved', function(from) {
-            var MAXH, MAXW, playerMidX, playerMidY, viewportMidH, viewportMidW;
+            var playerMidX, playerMidY;
             if (this.hit('solid')) {
               return this.attr({
                 x: from.x,
                 y: from.y
               });
             } else {
-              MAXW = gs.w * TILESIZE;
-              MAXH = gs.h * TILESIZE;
-              viewportMidW = $(Crafty.stage.elem).width() / 2;
-              viewportMidH = $(Crafty.stage.elem).height() / 2;
-              playerMidX = this.x + (this.w / 2);
-              playerMidY = this.y + (this.h / 2);
+              playerMidX = this.x + playerHalfWidth;
+              playerMidY = this.y + playerHalfHeight;
               if (playerMidX > viewportMidW && (MAXW - playerMidX) > viewportMidW) {
                 Crafty.viewport.scroll('_x', -(playerMidX - viewportMidW));
               }
@@ -129,7 +141,7 @@
         log: [6, 10],
         edge: [3, 10]
       });
-      Crafty.sprite(36, "/game/art/Player.png", {
+      Crafty.sprite(PLAYERSPRITESIZE.w, "/game/art/Player.png", {
         player: [0, 0, 1, 2]
       });
       Crafty.audio.add({
