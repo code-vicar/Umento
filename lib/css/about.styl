@@ -1,0 +1,31 @@
+@import 'nib'
+@import 'grid'
+@import 'fonts'
+@import 'layout'
+
+.mainsection
+  column 12
+  height:800px
+  margin-top 25px
+
+  h1
+    color black
+    padding 7px
+    font 30px 'DroidSansMonoRegular', Verdana, sans-serif
+    border-radius 7px
+    border-top 3px RGB(207, 227, 232) solid
+    border-left 3px RGB(207, 227, 232) solid
+    border-bottom 3px RGB(195, 214, 219) solid
+    border-right 3px RGB(195, 214, 219) solid
+    background linear-gradient(top, RGB(0, 227, 232), RGB(200, 221, 227))
+
+  p
+    padding 10px 5px 10px 5px
+    margin 0 7px 0 7px
+    background RGBa(200,200,200,0.3)
+    &:last-child
+      border-radius bottom 7px
+    a
+      background black
+      border-radius 5px
+      padding 2px 4px

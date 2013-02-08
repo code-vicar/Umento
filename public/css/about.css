@@ -197,7 +197,6 @@ a:visited {
   text-align: right;
 }
 .login {
-  z-index: 1000;
   position: absolute;
   top: 0;
   right: 0;
@@ -308,8 +307,39 @@ a:visited {
   width: 97.91666666666666%;
   margin: 0 1.0416666666666665%;
   height: 800px;
+  margin-top: 25px;
 }
-#cr-stage {
-  width: 100% !important;
-  height: inherit !important;
+.mainsection h1 {
+  color: #000;
+  padding: 7px;
+  font: 30px 'DroidSansMonoRegular', Verdana, sans-serif;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  border-top: 3px RGB(207, 227, 232) solid;
+  border-left: 3px RGB(207, 227, 232) solid;
+  border-bottom: 3px RGB(195, 214, 219) solid;
+  border-right: 3px RGB(195, 214, 219) solid;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, RGB(0, 227, 232)), color-stop(1, RGB(200, 221, 227)));
+  background: -webkit-linear-gradient(top, RGB(0, 227, 232) 0%, RGB(200, 221, 227) 100%);
+  background: -moz-linear-gradient(top, RGB(0, 227, 232) 0%, RGB(200, 221, 227) 100%);
+  background: -o-linear-gradient(top, RGB(0, 227, 232) 0%, RGB(200, 221, 227) 100%);
+  background: -ms-linear-gradient(top, RGB(0, 227, 232) 0%, RGB(200, 221, 227) 100%);
+  background: linear-gradient(top, RGB(0, 227, 232) 0%, RGB(200, 221, 227) 100%);
+}
+.mainsection p {
+  padding: 10px 5px 10px 5px;
+  margin: 0 7px 0 7px;
+  background: RGBa(200, 200, 200, 0.3);
+}
+.mainsection p:last-child {
+  -webkit-border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
+  -webkit-border-bottom-right-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+.mainsection p a {
+  background: #000;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 2px 4px;
 }

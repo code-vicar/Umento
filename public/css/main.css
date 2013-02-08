@@ -127,6 +127,11 @@ td {
 a img {
   border: none;
 }
+body {
+  background: #000;
+  font-family: 'DroidSansMonoRegular', Verdana, sans-serif;
+  color: #fff;
+}
 a {
   outline: none;
   text-decoration: none;
