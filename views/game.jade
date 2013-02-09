@@ -1,13 +1,12 @@
 extends layout
 
 block topscripts
-  link(rel="stylesheet", type="text/css", href="/css/game.css")
+  != css('game')
 
 block content
   section(class="mainsection")
     #cr-stage
 
 block botscripts
-  script(src="/js/crafty.js")
-  script(src="/js/game.js")
+  != js('game')
   

@@ -3,9 +3,8 @@ var redis = require('redis');
 var connectRedis = require('connect-redis');
 var express = require('express');
 var socketio = require('socket.io');
-var stylus = require('stylus');
-var nib = require('nib');
-var cnCoffeeScript = require('connect-coffee-script');
+//var stylus = require('stylus');
+//var nib = require('nib');
 var utils = require('./utils');
 //var moment = require('public/js/moment');
 
@@ -17,12 +16,6 @@ var RedisStore = connectRedis(express);
 var app = express();
 var server = http.createServer(app);
 
-function compileStyl(str, path) {
-  return stylus(str)
-    .set('filename', path)
-    .use(nib());
-}
-
 //c9.io umento development settings
 app.configure('development', function() {
   console.log("in development");
@@ -30,13 +23,7 @@ app.configure('development', function() {
   app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
   app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
-  var stylusOpts = {
-    debug: true,
-    src: __dirname + '/lib',
-    dest: __dirname + '/public',
-    compile: compileStyl
-  };
-  
+    
   console.log("redis host: " + app.get("umento_redisHost"));
   console.log("redis port: " + app.get("umento_redisPort"));
   console.log("redis auth: " + app.get("umento_redisAuth"));
@@ -46,27 +33,17 @@ app.configure('development', function() {
   //dev database is 0, which is default
   var redisStore = new RedisStore({client: redisClient});
   
-  main(stylusOpts, redisClient, redisStore);
+  main(redisClient, redisStore);
 });
 
 //app fog umento.hp.af.cm production settings
 app.configure('production', function() {
   console.log("in production");
-  //var servicesEnv = JSON.parse(process.env.VCAP_SERVICES);
-  //var redisCreds = servicesEnv["redis-2.2"][0].credentials;
   app.set("umento_httpPort", process.env.VCAP_APP_PORT);
-  //app.set("umento_redisHost", redisCreds.host);
-  //app.set("umento_redisPort", redisCreds.port);
-  //app.set("umento_redisAuth", redisCreds.password);
   app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
   app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
-  var stylusOpts = {
-    src: __dirname + '/lib',
-    dest: __dirname + '/public',
-    compile: compileStyl
-  };
-  
+    
   console.log("redis host: " + app.get("umento_redisHost"));
   console.log("redis port: " + app.get("umento_redisPort"));
   console.log("redis auth: " + app.get("umento_redisAuth"));
@@ -77,7 +54,7 @@ app.configure('production', function() {
   redisClient.select(1, function() {
     var redisStore = new RedisStore({client: redisClient});
   
-    main(stylusOpts, redisClient, redisStore);
+    main(redisClient, redisStore);
   });
   
   //set up a regular redis ping command to keep the connection open
@@ -86,8 +63,12 @@ app.configure('production', function() {
   }, 30*MINUTE);
 });
 
-function main(stylusOpts, redisClient, redisStore) {
-    
+function main(redisClient, redisStore) {
+  //log errors from the redis database
+  redisClient.on("error", function(err){
+    console.log("Redis Error: " + err);
+  });
+  
   //general configurations
   app.set('title', 'Try Umento');
   app.set('views', __dirname + '/views');
@@ -106,15 +87,12 @@ function main(stylusOpts, redisClient, redisStore) {
     store: redisStore,
     cookie: { path:'/', httpOnly:true, maxAge:COOKIEMAXAGE }
   }));
-  app.use(stylus.middleware(stylusOpts));
-  app.use(cnCoffeeScript({
-   src: __dirname + '/lib',
-   dest: __dirname + '/public'
-  }));
+  app.use(require('connect-assets')({src:'lib', buildDir:'public'}));
   app.use(globalViewData);
   app.use(app.router);
   app.use(express.static(__dirname + '/public', {maxAge:86400}));
   
+  //set up a custom 404 response
   app.use(function(req, res, next) {
     res.status(404);
     
@@ -131,19 +109,44 @@ function main(stylusOpts, redisClient, redisStore) {
     res.type('txt').send('Not found');
   });
   
+  //set up variables for accessing the User, and Gamestate models
   var User = require('./models/user')(redisClient);
   var GameState = require('./public/js/gamestate');
+  
+  //construct and initialize the gamestate
   var gs = new GameState({w:60, h:34, logs:15});
   gs.initialize();
-  //console.log(gs);
   
+  //start the http server listening for requests
   server.listen(app.get("umento_httpPort"));
-  var io = socketio.listen(server);
-  io.set ('authorization', socketAuth);
   
-  //redisClient settings
-  redisClient.on("error", function(err){
-    console.log("Redis Error: " + err);
+  //start the socketio framework listening to the http server
+  var io = socketio.listen(server);
+  
+  //set up an authorization method to be called each time a new socket connection is attempted
+  io.set ('authorization', function(handShakeData, accept) {
+    // check if there's a cookie header
+    if (handShakeData.headers.cookie) {
+        // if there is, parse the cookie
+        handShakeData.cookie = utils.cookie.parse(handShakeData.headers.cookie);
+        //get the sessionID from the cookie. (it must be stored in a variable named "sessionID" on the handshake object)
+        handShakeData.sessionID = utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
+        //retrieve the session store object using the sessionID from the cookie
+        redisStore.load(handShakeData.sessionID, function(err, sess) {
+          if (err || !sess) {
+            //can't  get session information from the store
+            //deny the socket connection with a message
+            return accept('session retrieval error', false);
+          }
+          //keep a reference to the session in a "session" variable on the handshake object
+          handShakeData.session = sess;
+          //allow the socket connection
+          accept(null, true);
+        });
+    } else {
+       // if there isn't, deny the socket connection with a message
+       return accept('No cookie transmitted.', false);
+    }
   });
   
   //socket.io settings
@@ -159,12 +162,14 @@ function main(stylusOpts, redisClient, redisStore) {
     ]);
   });
   
+  //prepare headers for use in requests that shouldn't be cached
   var noCacheResHeaders = {
     'Pragma':'no-cache',
     'Cache-Control':'s-maxage=0, max-age=0, must-revalidate, no-cache',
     'Expires':'0'
   };
     
+  //create a function called on every request to build a common ViewData object
   function globalViewData(req, res, next) {
     res.ViewData = res.ViewData || {};
     res.ViewData.username = ""; 
@@ -176,6 +181,7 @@ function main(stylusOpts, redisClient, redisStore) {
     next();
   }
   
+  //create the function that renders the home page
   function renderHome(req, res) {
     res.ViewData.title = "Monumentous";
     //req.session.views = req.session.views || 0;
@@ -197,64 +203,46 @@ function main(stylusOpts, redisClient, redisStore) {
     });
   }
   
+  //create the function that renders the about page
   function renderAbout(req, res) {
     res.ViewData.title = "Monumentous - About";
     res.render("about", res.ViewData);
   }
   
+  //create the function that renders the game page
   function renderGame(req, res) {
     res.ViewData.title = "Monumentous - Game";
     res.render("game", res.ViewData);
   }
   
+  //handle application root request
   app.get("/", function(req, res) {
     renderHome(req, res);
   });
   
+  //handle about page request
   app.get("/about", function(req, res) {
     renderAbout(req, res);
   });
   
+  //handle game page request
   app.get("/game", function(req, res) {
     renderGame(req, res);
   });
   
+  //handle gamestate json request
   app.get('/gamestate.json', function(req, res) {
     res.set('Content-Type', 'application/json');
     res.send(gs);
   });
   
-  function socketAuth(handShakeData, accept) {
-    // check if there's a cookie header
-    if (handShakeData.headers.cookie) {
-        // if there is, parse the cookie
-        handShakeData.cookie = utils.cookie.parse(handShakeData.headers.cookie);
-        handShakeData.sessionID = utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
-        //handShakeData.sessionStore = redisStore;
-        //console.log("socket auth handshake data -> ");
-        //console.log(handShakeData);
-        redisStore.load(handShakeData.sessionID, function(err, sess) {
-          if (err || !sess) {
-            //can't  get session information from the store
-            return accept('session retrieval error', false);
-          }
-          //console.log("loaded session on socket authentication ->");
-          //console.log(sess);
-          handShakeData.session = sess;
-          accept(null, true);
-        });
-    } else {
-       // if there isn't, turn down the connection with a message
-       // and leave the function.
-       return accept('No cookie transmitted.', false);
-    }
-  }
-  
+  //keep track of connected socket clients using the "userCount" variable
   var userCount = 0;
+  //set up a function to be called each time a socket connection is established
   io.sockets.on("connection", function (socket) {
-    //session stuff
+    //store a reference to the handshake object for convenience
     var hs = socket.handshake;
-    // setup an interval that will keep our session fresh
+    // setup an interval that will keep the session fresh
     var intervalID = setInterval(function () {
         // reload the session (just in case something changed,
         // we don't want to override anything, but the age)
@@ -267,12 +255,19 @@ function main(stylusOpts, redisClient, redisStore) {
         });
     }, 60 * 1000);
 
+    //track socket connections via their sessionID
+    //  multiple socket connections with the same sessionID go into the same "room"
     socket.join(hs.sessionID);
     
+    //after the socket joins it's sessionID room check the number of sockets in that room
     if (io.sockets.clients(hs.sessionID).length === 1) {
-      //new session
+      //if there is only one, then it is a new user (or a new browser, or they cleared their cookies and opened a new tab, or something like that)
       userCount += 1;
     }
+    
+    //broadcast to all connected sockets how many connections their.
+    //  we send the information to all sockets.
+    //  a newly connected client will still need this information, even if it hasn't changed
     io.sockets.emit("connectedUsers", {count: userCount});
     
     //listen for new user accounts
@@ -283,13 +278,16 @@ function main(stylusOpts, redisClient, redisStore) {
         if (data.hasOwnProperty("email") && typeof data.email === 'string' && data.email.length > 0) {
           usrData.email = data.email;
         }
+        //generate the new user in a model
         var user = new User(usrData);
+        //save the model to redis
         user.save(function(err, savedUser) {
           if (err || !savedUser) {
             console.log("could not create account ->");
             console.log(err);
             socket.emit("createAccount", {result:false});
           } else {
+            //set the user session to this newly created user
             hs.session.user = savedUser;
             hs.session.save();
             socket.emit("createAccount", {result:true, username:savedUser.username});
@@ -307,23 +305,20 @@ function main(stylusOpts, redisClient, redisStore) {
           if (err || !user) {
             socket.emit("login", {result:false});
           } else {
-            //authenticated
-            //hs.session.user = user;
-            //hs.session.save();
-            //socket.emit("login", {result:true, username:user.username});
-            
+            //the credentials were authentic
+            // give this user a new sessionID
             hs.session.regenerate(function(err) {
               if (err) {
                 console.log("failed to regenerate user session");
                 socket.emit("login", {result:false});
               } else {
+                //store the signed in user information in the session
                 hs.session.user = user;
                 hs.session.save();
                 //console.log(hs.session);
                 socket.emit("login", {result:true, username:user.username});
               }
             });
-            
           }
         });
       } else {
@@ -331,31 +326,34 @@ function main(stylusOpts, redisClient, redisStore) {
       }
     });
     
-    //listen for chat messages
+    //listen for a chat message
     socket.on("chatMessage", function(data) {
-      //if the user is logged in, override the nickname with the username
+      
+      //set up the data that will be stored in redis
       var pushData = {
         nickname: data.nickname,
         message: data.message,
         ts: data.ts
       };
+      
+      //if the user is logged in, override the nickname with the username
       if (hs.session.user) {
         pushData.nickname = hs.session.user.username;
       }
       
+      // serialize the data and push it onto the end of the chatMessages list
       redisClient.lpush("chatMessages", JSON.stringify(pushData), function(err, reply) {
-        //redisClient.ltrim("chatMessages", 0, 19, function(err, reply) {
-        //});
       });
       
       //the client already knows that it submitted a message, but the server may have overwritten some of it
       //  so we'll send the corrections back to that client so that it has the final copy
-      (function() {
-        pushData.index = data.index;
-        socket.emit("chatCorrection", pushData); 
-      })();
+      //  p.s. the client that emitted the message included an index
+      //   create a new response object for the originating client and put the index on it so it knows which message to correct
+      var dataCorrection = pushData;
+      dataCorrection.index = data.index;
+      socket.emit("chatCorrection", dataCorrection); 
       
-      //the other clients get the corrected data also as normal message emits
+      //the other clients don't need the index information, so send them the data without it
       socket.broadcast.emit("chatMessage", pushData);
     });
     
