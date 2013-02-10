@@ -1,10 +1,16 @@
 ns = window.Umento = window.Umento || {}
 
-UmView = ns.require "/js/UmView"
-MessageAPI = ns.require "/js/Message"
+#= require "socket.js"
+#= require "UmView.js"
+#= require "Message.js"
+#= require "require.js"
+
+socket = ns.socket
+UmView = ns.UmView
+MessageAPI = ns.MessageAPI
+
 tmpHome = ns.require "/templates/Home.html"
 
-exports = {}
 class Home extends Backbone.Model
   defaults: ->
     'connected': false
@@ -25,11 +31,11 @@ class HomeView extends UmView
       @render()
     , @
     
-    ns.socket.on "connect", _.bind ->
+    socket.on "connect", _.bind ->
       @model.set "connected", true
     , @
     
-    ns.socket.on "disconnect", _.bind ->
+    socket.on "disconnect", _.bind ->
       @model.set "connected", false
     , @
 
@@ -39,13 +45,13 @@ class HomeView extends UmView
     nick = $("#nick").val()
     nPut = $("#inVal")
     txt = nPut.val()
-    if txt.length > 0 and ns.socket?
+    if txt.length > 0 and socket?
       msg = ts:moment().format("YYYY-MM-DDTHH:mm:ss"), message:txt
       msg.nickname = nick if nick? and nick.length > 0
       @MessagesView.collection.add new MessageAPI.Message msg
       msg.index = (@MessagesView.collection.length - 1)
       
-      ns.socket.emit 'chatMessage', msg
+      socket.emit 'chatMessage', msg
       
       nPut.val("")
 
@@ -65,7 +71,8 @@ class HomeView extends UmView
     @assign(@MessagesView, ".messages")
 
     return @
-
-exports.Home = Home
-exports.HomeView = HomeView
-return exports
+    
+ns.HomeAPI = {}
+ns.HomeAPI.Home = Home
+ns.HomeAPI.HomeView = HomeView
+return ns.HomeAPI

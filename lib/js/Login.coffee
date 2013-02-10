@@ -1,6 +1,11 @@
 ns = window.Umento = window.Umento || {}
 
-UmView = ns.require "/js/UmView"
+#= require "socket.js"
+#= require "UmView.js"
+#= require "require.js"
+
+socket = ns.socket
+UmView = ns.UmView
 tmpLogin = ns.require "/templates/Login.html"
 
 NEW = "New?"
@@ -41,7 +46,6 @@ exitCreateMode = (view) ->
   btnLogin.find("span").html(SIGNIN)
   email.fadeOut "slow"
 
-exports = {}
 class Login extends Backbone.Model
   defaults: ->
     username:""
@@ -63,10 +67,10 @@ class LoginView extends UmView
     _.bind @render, @
     view = @
     
-    ns.socket.on 'login', (data) ->
+    socket.on 'login', (data) ->
       view.signInResult(data)
       
-    ns.socket.on 'createAccount', (data) ->
+    socket.on 'createAccount', (data) ->
       view.createResult(data)
     
     @model.on 'change', ->
@@ -127,16 +131,16 @@ class LoginView extends UmView
       #sign in
       upName = $("#username").val()
       upPassword = $("#password").val()
-      if ns.socket? and upName.length > 0 and upPassword.length > 0
-        ns.socket.emit "login",
+      if socket? and upName.length > 0 and upPassword.length > 0
+        socket.emit "login",
           username:upName
           password:upPassword
     else if txt is CREATE
       upName = $("#username").val()
       upEmail = $("#email").val()
       upPassword = $("#password").val()
-      if ns.socket? and upName.length > 0 and upPassword.length > 0
-        ns.socket.emit "createAccount",
+      if socket? and upName.length > 0 and upPassword.length > 0
+        socket.emit "createAccount",
           username:upName
           email:upEmail
           password:upPassword
@@ -157,7 +161,8 @@ class LoginView extends UmView
   render: ->
     @$el.html @template()
     return @
-    
-exports.Login = Login
-exports.LoginView = LoginView
-return exports
+
+ns.LoginAPI = {}
+ns.LoginAPI.Login = Login
+ns.LoginAPI.LoginView = LoginView
+return ns.LoginAPI

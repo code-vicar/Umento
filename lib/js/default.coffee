@@ -1,8 +1,14 @@
 ns = window.Umento = window.Umento || {}
 
-HomeAPI = ns.require "/js/Home"
-MessageAPI = ns.require "/js/Message"
-ConnectedUsersAPI = ns.require "/js/ConnectedUsers"
+#= require "socket.js"
+#= require "Home.js"
+#= require "Message.js"
+#= require "ConnectedUsers.js"
+
+socket = ns.socket
+HomeAPI = ns.HomeAPI
+MessageAPI = ns.MessageAPI
+ConnectedUsersAPI = ns.ConnectedUsersAPI
 
 $ ->
   #set up messages and connected users sub views
@@ -17,7 +23,7 @@ $ ->
   homeView = new HomeAPI.HomeView el:$('.mainsection'), model:home, ConnectedUsersView:connectedUsersView, MessagesView:messagesView
   
   checkConnection = ->
-    if ns.socket.socket.connected
+    if socket.socket.connected
       home.set 'connected', true
       clearInterval intervalID
   

@@ -1,7 +1,5 @@
 $ ->
   
-  #= require js('crafty')
-  
   ns = window.Umento = window.Umento || {}
   
   Crafty = window.Crafty

@@ -1,12 +1,10 @@
+require('coffee-script');
 var http = require('http');
 var redis = require('redis');
 var connectRedis = require('connect-redis');
 var express = require('express');
 var socketio = require('socket.io');
-//var stylus = require('stylus');
-//var nib = require('nib');
 var utils = require('./utils');
-//var moment = require('public/js/moment');
 
 var MINUTE = 60000;
 //two hour max age
@@ -16,9 +14,14 @@ var RedisStore = connectRedis(express);
 var app = express();
 var server = http.createServer(app);
 
+//set a debug variable so we know
+// if we want to send non-uglified code to the client
+var debug = true;
+
 //c9.io umento development settings
 app.configure('development', function() {
   console.log("in development");
+  debug = true;
   app.set("umento_httpPort", process.env.PORT || 8080);
   app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
@@ -39,6 +42,7 @@ app.configure('development', function() {
 //app fog umento.hp.af.cm production settings
 app.configure('production', function() {
   console.log("in production");
+  debug = false;
   app.set("umento_httpPort", process.env.VCAP_APP_PORT);
   app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
@@ -87,7 +91,7 @@ function main(redisClient, redisStore) {
     store: redisStore,
     cookie: { path:'/', httpOnly:true, maxAge:COOKIEMAXAGE }
   }));
-  app.use(require('connect-assets')({src:'lib', buildDir:'public'}));
+  app.use(require('connect-assets')({src:__dirname + '/lib', buildDir:__dirname + '/public'}));
   app.use(globalViewData);
   app.use(app.router);
   app.use(express.static(__dirname + '/public', {maxAge:86400}));
@@ -111,7 +115,7 @@ function main(redisClient, redisStore) {
   
   //set up variables for accessing the User, and Gamestate models
   var User = require('./models/user')(redisClient);
-  var GameState = require('./public/js/gamestate');
+  var GameState = require('./lib/js/gamestate');
   
   //construct and initialize the gamestate
   var gs = new GameState({w:60, h:34, logs:15});
@@ -172,11 +176,10 @@ function main(redisClient, redisStore) {
   //create a function called on every request to build a common ViewData object
   function globalViewData(req, res, next) {
     res.ViewData = res.ViewData || {};
+    res.ViewData.debug = debug; //let the template know about debug, so it can load .min files or not
     res.ViewData.username = ""; 
     if (req.session.user) {
       res.ViewData.username = req.session.user.username;
-      //console.log("global req ->");
-      //console.log(res.ViewData);
     }
     next();
   }
@@ -184,13 +187,6 @@ function main(redisClient, redisStore) {
   //create the function that renders the home page
   function renderHome(req, res) {
     res.ViewData.title = "Monumentous";
-    //req.session.views = req.session.views || 0;
-    //req.session.views = req.session.views + 1;
-    //console.log("request session ->");
-    //console.log(req.session);
-    //console.log("view data ->");
-    //console.log(res.ViewData);
-    console.log(req.session);
     redisClient.lrange("chatMessages", 0, 19, function(err, reply) {
       reply = reply ? reply : [];
       var msgs = [];

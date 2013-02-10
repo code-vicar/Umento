@@ -1,7 +1,7 @@
 extends layout
 
 block topscripts
-  link(rel="stylesheet", type="text/css", href="/css/main.css")
+  != css("main")
 
 block content
   section(class="mainsection")
@@ -9,4 +9,4 @@ block content
   input(id="hdnMessages", type="hidden", value="#{messages}")
 
 block botscripts
-  script(src="/js/default.js")
+  != js("default")

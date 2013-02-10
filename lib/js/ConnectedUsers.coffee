@@ -1,9 +1,13 @@
 ns = window.Umento = window.Umento || {}
 
-UmView = ns.require "/js/UmView"
+#= require "socket.js"
+#= require "UmView.js"
+#= require "require.js"
+
+socket = ns.socket
+UmView = ns.UmView
 tmpConUsers = ns.require "/templates/ConnectedUsers.html"
 
-exports = {}
 class ConnectedUsers extends Backbone.Model
   defaults: ->
     'count':0
@@ -20,7 +24,7 @@ class ConnectedUsersView extends UmView
       @render()
     , @
     
-    ns.socket.on "connectedUsers", _.bind((data) ->
+    socket.on "connectedUsers", _.bind((data) ->
       @model.set "count", data.count
     , @)
     
@@ -29,7 +33,8 @@ class ConnectedUsersView extends UmView
   render: ->
     @$el.html @template()
     return @
-  
-exports.ConnectedUsers = ConnectedUsers
-exports.ConnectedUsersView = ConnectedUsersView
-return exports
+
+ns.ConnectedUsersAPI = {}
+ns.ConnectedUsersAPI.ConnectedUsers = ConnectedUsers
+ns.ConnectedUsersAPI.ConnectedUsersView = ConnectedUsersView
+return ns.ConnectedUsersAPI

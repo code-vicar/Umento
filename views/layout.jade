@@ -2,6 +2,7 @@
 html
   head
     title #{title}
+    //script(src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js")
     block topscripts
   body
     header(class="mainheader")
@@ -24,13 +25,18 @@ html
   
   input(id="hdnUsername", type="hidden", value="#{username}")
   
+  //socket js for socketio
   script(src="/socket.io/socket.io.js")
-  script(src="/js/jquery.js")
-  script(src="/js/json2.js")
-  script(src="/js/underscore.js")
-  script(src="/js/backbone.js")
-  script(src="/js/moment.js")
-  script(src="/js/require.js")
-  script(src="/js/layout.js")
+  
+  //global js librarys
+  script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.10/backbone-min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/moment.js/1.7.2/moment.min.js")
 
+  //local js for layout
+  != js("layout")
+
+  //block where page specific js will be loaded
   block botscripts

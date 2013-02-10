@@ -1,9 +1,14 @@
 ns = window.Umento = window.Umento || {}
 
-UmView = ns.require "/js/UmView"
+#= require "socket.js"
+#= require "UmView.js"
+#= require "require.js"
+
+socket = ns.socket
+UmView = ns.UmView
+
 tmpMessage = ns.require "/templates/Message.html"
 
-exports = {}
 class Message extends Backbone.Model
   defaults: ->
     ts:moment().format("YYYY-MM-DDTHH:mm:ss")
@@ -50,11 +55,11 @@ class MessagesView extends UmView
     @collection.on 'reset', @AddAll
     @collection.on 'add', @AddOne
     
-    ns.socket.on "chatMessage", _.bind((data) ->
+    socket.on "chatMessage", _.bind((data) ->
       @collection.add data
     , @)
     
-    ns.socket.on "chatCorrection", _.bind((data) ->
+    socket.on "chatCorrection", _.bind((data) ->
       @collection.at(data.index).set("nickname",data.nickname)
     , @)
     
@@ -64,8 +69,9 @@ class MessagesView extends UmView
     @AddAll()
     return @
 
-exports.Message = Message
-exports.MessageView = MessageView
-exports.Messages = Messages
-exports.MessagesView = MessagesView
-return exports
+ns.MessageAPI = {}
+ns.MessageAPI.Message = Message
+ns.MessageAPI.MessageView = MessageView
+ns.MessageAPI.Messages = Messages
+ns.MessageAPI.MessagesView = MessagesView
+return ns.MessageAPI
