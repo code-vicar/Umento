@@ -4,7 +4,10 @@ class GameState
       #set up default properties
       @h = 0
       @w = 0
+      @tilesize = 32
+      @playerspritesize = 36
       @logs = 0
+      @players = []
       @entities = []
       #create properties from the object passed to the constuctor
       for key,val of props
@@ -20,13 +23,13 @@ class GameState
         for x in [0..(@w-1)]
           for y in [0..(@h-1)]  
             @entities.push
-              x:x
-              y:y
+              x:x*@tilesize
+              y:y*@tilesize
               entity:'grass'
             if x is @w-1 or x is 0 or y is @h-1 or y is 0
               @entities.push
-                x:x
-                y:y
+                x:x*@tilesize
+                y:y*@tilesize
                 entity:'edge, solid'
             
         for log in [0...@logs]
@@ -34,10 +37,14 @@ class GameState
           x = (Math.floor(Math.random()*(@w-3))+1)
           y = (Math.floor(Math.random()*(@h-3))+1)
           @entities.push
-            x:x
-            y:y
+            x:x*@tilesize
+            y:y*@tilesize
             entity:'log'
-  
+            
+    playerInGame:(player) ->
+      @players.some (p, index) ->
+        return player.id is p.id
+
 root = exports ? {}
 if exports?
   return root = module.exports = GameState

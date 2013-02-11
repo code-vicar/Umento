@@ -5,6 +5,7 @@ var connectRedis = require('connect-redis');
 var express = require('express');
 var socketio = require('socket.io');
 var utils = require('./utils');
+var UUIDGen = require('node-uuid');
 
 var MINUTE = 60000;
 //two hour max age
@@ -26,16 +27,16 @@ app.configure('development', function() {
   app.set("umento_redisHost", "70.89.137.93");
   app.set("umento_redisPort", 6379);
   app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
-    
+
   console.log("redis host: " + app.get("umento_redisHost"));
   console.log("redis port: " + app.get("umento_redisPort"));
   console.log("redis auth: " + app.get("umento_redisAuth"));
-  
+
   var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
   redisClient.auth(app.get("umento_redisAuth"));
   //dev database is 0, which is default
   var redisStore = new RedisStore({client: redisClient});
-  
+
   main(redisClient, redisStore);
 });
 
@@ -115,7 +116,8 @@ function main(redisClient, redisStore) {
   
   //set up variables for accessing the User, and Gamestate models
   var User = require('./models/user')(redisClient);
-  var GameState = require('./lib/js/gamestate');
+  var GameState = require('./models/gamestate');
+  var Player = require('./models/player');
   
   //construct and initialize the gamestate
   var gs = new GameState({w:60, h:34, logs:15});
@@ -176,7 +178,6 @@ function main(redisClient, redisStore) {
   //create a function called on every request to build a common ViewData object
   function globalViewData(req, res, next) {
     res.ViewData = res.ViewData || {};
-    res.ViewData.debug = debug; //let the template know about debug, so it can load .min files or not
     res.ViewData.username = ""; 
     if (req.session.user) {
       res.ViewData.username = req.session.user.username;
@@ -232,6 +233,18 @@ function main(redisClient, redisStore) {
     res.send(gs);
   });
   
+  //handle event where account is created, or user logs in
+  var accountCreateOrLogin = function(sess, user, fn) {
+    //store the user in the session
+    sess.user = user;
+    //set up a player entity for this user, so they can play the game
+    //determine starting point for the player entity
+    //the map is edged by 1 tile of solid blocks, offset the player by 1 in the x direction and 1 in the y direction
+    sess.player = new Player({id:UUIDGen.v4(), x:gs.tilesize, y:gs.tilesize});
+    sess.save();
+    return fn();
+  };
+  
   //keep track of connected socket clients using the "userCount" variable
   var userCount = 0;
   //set up a function to be called each time a socket connection is established
@@ -261,7 +274,7 @@ function main(redisClient, redisStore) {
       userCount += 1;
     }
     
-    //broadcast to all connected sockets how many connections their.
+    //broadcast to all connected sockets how many connections there are.
     //  we send the information to all sockets.
     //  a newly connected client will still need this information, even if it hasn't changed
     io.sockets.emit("connectedUsers", {count: userCount});
@@ -283,10 +296,9 @@ function main(redisClient, redisStore) {
             console.log(err);
             socket.emit("createAccount", {result:false});
           } else {
-            //set the user session to this newly created user
-            hs.session.user = savedUser;
-            hs.session.save();
-            socket.emit("createAccount", {result:true, username:savedUser.username});
+            accountCreateOrLogin(hs.session, savedUser, function() {
+              socket.emit("createAccount", {result:true, username:savedUser.username});
+            });
           }
         });
       }
@@ -309,16 +321,55 @@ function main(redisClient, redisStore) {
                 socket.emit("login", {result:false});
               } else {
                 //store the signed in user information in the session
-                hs.session.user = user;
-                hs.session.save();
-                //console.log(hs.session);
-                socket.emit("login", {result:true, username:user.username});
+                accountCreateOrLogin(hs.session, user, function(){
+                  socket.emit("login", {result:true, username:user.username});
+                });
               }
             });
           }
         });
       } else {
         socket.emit("login", {result:false});
+      }
+    });
+    
+    socket.on("joinGame", function(data) {
+      if (hs.session.player !== null && typeof hs.session.player !== 'undefined') {
+        //logged in user visited the game page,
+        //  or user visited the game page and then logged it.
+        //  get their player entity and add it to the gamestate
+        //  notify other sockets about the update
+        //check if this player entity is already in the game (can happen if a single user opens multiple tabs to the game)
+        if (!gs.playerInGame(hs.session.player)) {
+          gs.players.push(hs.session.player);
+          
+          //tell other players a new player has joined
+          socket.broadcast.emit("playerJoined", {player:hs.session.player});
+        }
+        
+        //tell the user they joined successfully
+        socket.emit("joinGame", {result:true, player:hs.session.player });
+      } else{
+        socket.emit("joinGame", {result:false});
+      }
+    });
+    
+    socket.on("gameUpdate", function(data) {
+      //make sure the socket is a "player"
+      if (hs.session.player !== null && typeof hs.session.player !== 'undefined' && gs.playerInGame(hs.session.player)) {
+        //possible commands
+        // up/down/left/right/pickup/attack
+        // looks like "actions:[]"
+        data.actions.forEach(function(action, index) {
+          //apply the actions
+          
+        });
+        
+        //send back corrected state to the original socket
+        socket.emit("serverCorrection", {player:hs.session.player});
+        
+        //update the other sockets about the actions that occurred
+        socket.broadcast.emit("gameUpdate", {player:hs.session.player});
       }
     });
     
@@ -363,6 +414,20 @@ function main(redisClient, redisStore) {
       //check the room for other sockets, if this was the last browser with that session then decrement the user count
       if (io.sockets.clients(hs.sessionID).length === 0) {
         userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
+        if (hs.session.player !== null && hs.session.player !== 'undefined' && gs.playerInGame(hs.session.player)) {
+          //find the index of the player object in the gamestate
+          var pIndex = 0;
+          gs.players.forEach(function(p, index) {
+            if (hs.session.player.id === p.id) {
+              pIndex = index;
+              return;
+            }
+          });
+          //remove it
+          gs.players.splice(pIndex,1);
+          //notify other players
+          socket.broadcast.emit("playerDisconnected", {player:hs.session.player});
+        }
       }
       io.sockets.emit("connectedUsers", {count: userCount});
     });

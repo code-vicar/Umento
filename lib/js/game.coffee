@@ -1,10 +1,29 @@
+#= require "gamecomponents.js"
+#= require "socket.js"
+
 $ ->
   
   ns = window.Umento = window.Umento || {}
   
-  Crafty = window.Crafty
+  socket = ns.socket
   
-  Crafty.init()
+  #emitted after you attempt to join a game
+  socket.on "joinGame", (data)->
+    ns.gamestate.localPlayer = null
+    if data.result
+      ns.gamestate.localPlayer = data.player
+      Crafty.e("2D, DOM, player, Human, Fourway").attr({x:ns.gamestate.localPlayer.x, y:ns.gamestate.localPlayer.y, z:10}).fourway(ns.gamestate.localPlayer.speed);
+
+  #emitted each time actions are taken on the client and are sent to the server
+  socket.on "serverCorrection", (data)->
+  
+  #emitted each time a new player joins the game
+  socket.on "playerJoined", (data)->
+
+  #emitted each time a player disconnects from the game
+  socket.on "playerDisconnected", (data)->
+
+  Crafty = window.Crafty
   
   logUpdate = (e)->
     console.log "loading update"
@@ -14,11 +33,7 @@ $ ->
     console.log "loading error"
     console.log e
     
-  #gamestate
-  gs = {}
-  
-  Crafty.scene "loading", ->
-    
+  loading = ->
     #black background with some loading text
     Crafty.background "#000"
     LoadingTxt = Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 }).text("Loading").css({ "color":"#FFF", "text-align": "center" })
@@ -35,7 +50,7 @@ $ ->
         url:"/gamestate.json"
         dataType:"json"
         success:(data, textStatus, jqXHR)->
-          gs = data
+          ns.gamestate = data
           Crafty.scene "main"
         error:(jqXHR, textStatus, errorThrown)->
           logError
@@ -50,115 +65,45 @@ $ ->
       #error function
       logError e
       LoadingTxt.text "Error loading assets"
-
-  Crafty.scene "main", ->
     
+  main = ->
     #precomputed variables
-    TILESIZE = 32
-    PLAYERSPRITESIZE =
-      w:36
-      h:72
-    MAXW = gs.w*TILESIZE
-    MAXH = gs.h*TILESIZE
-    viewportMidW = $(Crafty.stage.elem).width() / 2
-    viewportMidH = $(Crafty.stage.elem).height() / 2
-    playerHalfWidth = PLAYERSPRITESIZE.w / 2
-    playerHalfHeight = PLAYERSPRITESIZE.h / 2
+    ns.GameComponents.vars = 
+      TILESIZE: ns.gamestate.tilesize
+      PLAYERSPRITESIZE:
+        w: ns.gamestate.playerspritesize
+        h: ns.gamestate.playerspritesize*2
+      MAXW: ns.gamestate.w*ns.gamestate.tilesize
+      MAXH: ns.gamestate.h*ns.gamestate.tilesize
+      viewportMidW: $(Crafty.stage.elem).width() / 2
+      viewportMidH: $(Crafty.stage.elem).height() / 2
+      playerHalfWidth: ns.gamestate.playerspritesize / 2
+      playerHalfHeight: ns.gamestate.playerspritesize
     
-    adjust_size = ->
-      $(window).on "resize", ->
-        #recalculate viewport variables
-        viewportMidW = $(Crafty.stage.elem).width() / 2
-        viewportMidH = $(Crafty.stage.elem).height() / 2
+    $(window).on "resize", ->
+      #recalculate viewport variables on window resize
+      precomps.viewportMidW = $(Crafty.stage.elem).width() / 2
+      precomps.viewportMidH = $(Crafty.stage.elem).height() / 2
     
-    ###
-    Crafty.c('LeftControls', {
-      init:->
-        @requires('Multiway')
-        return
-        
-      leftControls:(speed)->
-        @multiway speed,
-          W: -90
-          S: 90
-          D: 0
-          A: 180
-        return @
-    })
-    ###
+    #load components
+    ns.GameComponents.load()
     
-    Crafty.c('Human', {
-      init:->
-        @requires("SpriteAnimation, Collision, Grid")
-        @animate("walk",0,0,4)
-        
-        @bind 'NewDirection', (direction)->
-          #animate walking left
-          if direction.x < 0
-            @stop().animate("walk",15,-1) unless @isPlaying "walk"
-          #animate walking right
-          if direction.x > 0
-            @stop().animate("walk",15,-1) unless @isPlaying "walk"
-          #animate walking up
-          if direction.y < 0
-            @stop().animate("walk",15,-1) unless @isPlaying "walk"
-          #animate walking down
-          if direction.y > 0
-            @stop().animate("walk",15,-1) unless @isPlaying "walk"
-          #stop walking animation
-          if not direction.x and not direction.y
-            @reset()
-            @draw()
-        
-        #check if there was a collision after each move event
-        @bind 'Moved', (from)->
-          if @hit('solid')
-            @attr
-              x:from.x
-              y:from.y
-          else
-            playerMidX = @x + playerHalfWidth
-            playerMidY = @y + playerHalfHeight
-            
-            if playerMidX > viewportMidW and (MAXW - playerMidX) > viewportMidW
-              Crafty.viewport.scroll('_x', -(playerMidX - viewportMidW))
-            
-            if playerMidY > viewportMidH and (MAXH - playerMidY) > (viewportMidH)
-              #console.log({py:playerMidY, vpy:viewportMidH, maxh:MAXH});
-              Crafty.viewport.scroll('_y', -(playerMidY - viewportMidH))
-              
-        return
-    })
-    
-    Crafty.sprite(TILESIZE,"/game/art/PathAndObjects.png",
-    {
-      grass:[1,11],
-      log:[6,10],
-      edge:[3,10]
-    })
-    
-    Crafty.sprite(PLAYERSPRITESIZE.w, "/game/art/Player.png",
-    {
-      player:[0,0,1,2]
-    })
-    
-    Crafty.audio.add
-      lounge:["/game/sound/SomewhereSunny.mp3", "/game/sound/SomewhereSunny.ogg", "/game/sound/SomewhereSunny.wav"]
-      
     Crafty.audio.play('lounge',-1,1)
     
-    entityMap = []
-        
-    for ent in gs.entities
-      posX = ent.x*TILESIZE
-      posY = ent.y*TILESIZE
-      #initialize the yaxis at this xaxis location
-      entityMap[ent.x] = [] unless entityMap[ent.x]?
-      entityMap[ent.x][ent.y] = [] unless entityMap[ent.x][ent.y]?
-      entityMap[ent.x][ent.y].push(Crafty.e("2D, DOM, " + ent.entity).attr({x:posX, y:posY}))
+    for ent in ns.gamestate.entities
+      Crafty.e("2D, DOM, " + ent.entity).attr({x:ent.x, y:ent.y})
     
-    playerEnt = Crafty.e("2D, DOM, player, Human, Fourway").attr({x: TILESIZE, y: TILESIZE, z:10}).fourway(2)
-    entityMap[1][1].push = playerEnt
-  
+    #load other players that are already in the game
+    for player in ns.gamestate.players
+      Crafty.e("2D, DOM, player").attr({x:player.x, y:player.y, z:10})
+      
+    #when the main scene starts, try to join the game
+    socket.emit "joinGame", {}
+
+  #set up the scenes in crafty
+  Crafty.scene "loading", loading
+  Crafty.scene "main", main
+
+  #start the crafty engine
+  Crafty.init()
   Crafty.scene "loading"
-    

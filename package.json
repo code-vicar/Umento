@@ -18,6 +18,7 @@
     "nib": "~0.9.1",
     "connect-assets":"~2.3.3",
     "bcrypt": "~0.7.3",
+    "node-uuid": "~1.4.0",
     "cookie": "~0.0.5",
     "cookie-signature": "~0.0.1"
   }
