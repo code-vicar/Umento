@@ -486,7 +486,8 @@ function main(redisClient, redisStore) {
             }
           });
           //remove the entity from the Crafty Server Simulation
-          PlayerEntityTracker[tIndex].entity.destroy();
+          var pEnt = PlayerEntityTracker.splice(tIndex, 1);
+          pEnt.entity.destroy();
           //remove the player from the gamestate
           gs.players.splice(pIndex, 1);
           //notify other players
