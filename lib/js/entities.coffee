@@ -76,7 +76,7 @@ class GameEntities
       @add
         name:"player"
         clientcomponents:[
-          "2D", "Collision", "DOM", "player", "SpriteAnimation", "Human"
+          "2D", "Collision", "DOM", "player", "SpriteAnimation"
         ]
         servercomponents:[
           "2D", "Collision", "Fourway"
@@ -91,6 +91,7 @@ class GameEntities
             #playerEnt.remotecontrol @_args.speed
           else
             playerEnt.addComponent "Fourway"
+            playerEnt.addComponent "Human"
             playerEnt.fourway @_args.speed
           return playerEnt
           
@@ -107,16 +108,16 @@ class GameEntities
     remove: (ent) ->
       if typeof ent is "string"
         for item, i in @_entities
-          return @_entities.slice i, 1 if item.name is ent
+          return @_entities.splice i, 1 if item.name is ent
       else
         idx = @_entities.indexOf ent
         unless idx is -1
-          return @_entities.slice idx, 1
+          return @_entities.splice idx, 1
       return null
 
     removeAt: (idx) ->
       unless idx is -1 or idx >= @_entities.length
-        @_entities.slice idx, 1
+        @_entities.splice idx, 1
         
     get: (name) ->
       for ent in @_entities

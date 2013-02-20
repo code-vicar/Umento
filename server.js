@@ -368,7 +368,6 @@ function main(redisClient, redisStore) {
           //add the player to the gamestate
           gs.players.push(hs.session.player);
           
-          
           //tell other players a new player has joined
           socket.broadcast.emit("playerJoined", {player:hs.session.player});
         }
@@ -380,22 +379,52 @@ function main(redisClient, redisStore) {
       }
     });
     
-    socket.on("gameUpdate", function(data) {
+    socket.on("gameUpdate", function(actionbuffer) {
       //make sure the socket is a "player"
       if (hs.session.player !== null && typeof hs.session.player !== 'undefined' && gs.playerInGame(hs.session.player)) {
-        //possible commands
-        // up/down/left/right/pickup/attack
-        // looks like "actions:[]"
-        data.actions.forEach(function(action, index) {
-          //apply the actions
-          
+        var playerIdx = -1;
+        gs.players.some(function(pl, index) {
+          var match = pl.id === hs.session.player.id;
+          if (match) {
+            playerIdx = index;
+          }
+          return match;
+        });
+        var playerEnt = null;
+        PlayerEntityTracker.some(function(ent) {
+          var match = ent.id === hs.session.player.id;
+          if (match) {
+            playerEnt = ent;
+          }
+          return match;
         });
         
-        //send back corrected state to the original socket
-        socket.emit("serverCorrection", {player:hs.session.player});
-        
-        //update the other sockets about the actions that occurred
-        socket.broadcast.emit("gameUpdate", {player:hs.session.player});
+        //TODO:  for right now i'm just letting the client do whatever,
+        //  in the future i'll be running the actions through the server engine
+        //  to get authoritive results.
+        var actionCount = actionbuffer.length;
+        if (playerIdx > -1 && playerEnt !== null) {
+          actionbuffer.forEach(function(action, index) {
+            //apply the actions
+            switch (action.name) {
+              case "move":
+                hs.session.player.x = action.args.x;
+                hs.session.player.y = action.args.y;
+                playerEnt.x = action.args.x;
+                playerEnt.y = action.args.y;
+                gs.players[playerIdx] = hs.session.player;
+                break;
+              default:
+                break;
+            }
+          });
+          
+          //send back corrected state to the original socket
+          socket.emit("serverCorrection", {actionsCorrect:actionCount, playerUpdates:[hs.session.player]});
+          
+          //update the other sockets about the actions that occurred
+          socket.broadcast.emit("gameUpdate", [hs.session.player]);
+        }
       }
     });
     
@@ -440,7 +469,7 @@ function main(redisClient, redisStore) {
       //check the room for other sockets, if this was the last browser with that session then decrement the user count
       if (io.sockets.clients(hs.sessionID).length === 0) {
         userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
-        if (hs.session.player !== null && hs.session.player !== 'undefined' && gs.playerInGame(hs.session.player)) {
+        if (hs.session.player !== null && typeof hs.session.player !== 'undefined' && gs.playerInGame(hs.session.player)) {
           //find the index of the player object in the gamestate
           var pIndex = 0;
           gs.players.forEach(function(p, index) {

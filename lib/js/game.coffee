@@ -12,6 +12,8 @@ $ ->
   
   socket = ns.socket
   
+  PlayerEntityTracker = []
+  
   #emitted after you attempt to join a game
   socket.on "joinGame", (data)->
     if data.result
@@ -22,10 +24,31 @@ $ ->
         speed:data.player.speed
       playerEnt = playerGE.initclient Crafty
       
+      playerEnt.viewportFocusPlayer(true);
+      
       ns.gamestate.localPlayer = player:data.player, playerEnt:playerEnt
-
+  
+  #emitted if there is an update to the game state caused by another player
+  socket.on "gameUpdate", (playersUpdated)->
+    for player in playersUpdated
+      playerEnt = null
+      PlayerEntityTracker.some (t, Index)->
+        match = t.id is player.id
+        if match
+          playerEnt = t.playerEnt
+        return match
+        
+      if playerEnt?
+        playerEnt.x = player.x
+        playerEnt.y = player.y
+        
   #emitted each time actions are taken on the client and are sent to the server
-  socket.on "serverCorrection", (data)->
+  socket.on "serverCorrection", (correctionAndUpdates)->
+    #splice off the top of the action buffer the actions which have been verified by the server
+    ns.gamestate.localPlayer.playerEnt._actionbuffer.splice(0, correctionAndUpdates.actionsCorrect)
+    #set the client to the corrected state given by the server
+    
+    #replay the list of actions in the buffer that are yet to be verified
   
   #emitted each time a new player joins the game
   socket.on "playerJoined", (data)->
@@ -90,8 +113,8 @@ $ ->
     
     $(window).on "resize", ->
       #recalculate viewport variables on window resize
-      precomps.viewportMidW = $(Crafty.stage.elem).width() / 2
-      precomps.viewportMidH = $(Crafty.stage.elem).height() / 2
+      ns.GameComponents.vars.viewportMidW = $(Crafty.stage.elem).width() / 2
+      ns.GameComponents.vars.viewportMidH = $(Crafty.stage.elem).height() / 2
     
     #load components
     ns.GameComponents.load()
@@ -107,11 +130,14 @@ $ ->
     playerGE = GE.get "player"
     for p in ns.gamestate.players
       playerGE.args
-        x:p.player.x
-        y:p.player.y
-        speed:p.player.speed
+        x:p.x
+        y:p.y
+        speed:p.speed
         otherplayer:true
-      playerGE.initclient Crafty
+      pEnt = playerGE.initclient Crafty
+      PlayerEntityTracker.push
+        id:p.id
+        playerEnt: pEnt
       
     #when the main scene starts, try to join the game
     socket.emit "joinGame", {}

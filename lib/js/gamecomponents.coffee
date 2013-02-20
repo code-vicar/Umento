@@ -1,6 +1,10 @@
+#= require "socket.js"
+
 ns = window.Umento = window.Umento || {}
 
 Crafty = window.Crafty
+
+socket = ns.socket
 
 ns.GameComponents = {}
 
@@ -22,6 +26,52 @@ ns.GameComponents.load = ->
     init:->
       @requires("SpriteAnimation, Collision")
       @animate("walk",0,0,4)
+      
+      @_actionbuffer = []
+      self = @
+      
+      @_serverUpdate = setInterval ->
+        unsent = (action for action in self._actionbuffer when action.sent is false)
+        if unsent.length > 0
+          socket.emit("gameUpdate", unsent)
+          action.sent = true for action in unsent
+      , 500
+      
+      @viewportFocusPlayer = (override)->
+        playerMidX = @x + ns.GameComponents.vars.playerHalfWidth
+        playerMidY = @y + ns.GameComponents.vars.playerHalfHeight
+        
+        
+        if override
+          #check the right side
+          offsetx = ns.GameComponents.vars.viewportMidW - (ns.GameComponents.vars.MAXW - playerMidX)
+          if offsetx > 0
+            #couldnt fit the viewport between the player and the end of the map on the right, offset it to the left of the player
+            offsetx = -offsetx
+          else
+            #check the left side
+            offsetx = ns.GameComponents.vars.viewportMidW - playerMidX
+            if offsetx < 0
+              offsetx = 0
+          #check the bottom side
+          offsety = ns.GameComponents.vars.viewportMidH - (ns.GameComponents.vars.MAXH - playerMidY)
+          if offsety > 0
+            #couldnt fit the viewport between the player and the end of the map on the bottom, offset it to above the player
+            offsety = -offsety
+          else
+            #check the top side
+            offsety = ns.GameComponents.vars.viewportMidH - playerMidY
+            if offsety < 0
+              offsety = 0
+          Crafty.viewport.scroll('_x', -(playerMidX - ns.GameComponents.vars.viewportMidW + offsetx))
+          Crafty.viewport.scroll('_y', -(playerMidY - ns.GameComponents.vars.viewportMidH + offsety))
+
+        else
+          if (playerMidX > ns.GameComponents.vars.viewportMidW and (ns.GameComponents.vars.MAXW - playerMidX) > ns.GameComponents.vars.viewportMidW)
+            Crafty.viewport.scroll('_x', -(playerMidX - ns.GameComponents.vars.viewportMidW))
+          
+          if (playerMidY > ns.GameComponents.vars.viewportMidH and (ns.GameComponents.vars.MAXH - playerMidY) > ns.GameComponents.vars.viewportMidH)
+            Crafty.viewport.scroll('_y', -(playerMidY - ns.GameComponents.vars.viewportMidH))
       
       @bind 'NewDirection', (direction)->
         #animate walking left
@@ -48,14 +98,16 @@ ns.GameComponents.load = ->
             x:from.x
             y:from.y
         else
-          playerMidX = @x + ns.GameComponents.vars.playerHalfWidth
-          playerMidY = @y + ns.GameComponents.vars.playerHalfHeight
-          
-          if playerMidX > ns.GameComponents.vars.viewportMidW and (ns.GameComponents.vars.MAXW - playerMidX) > ns.GameComponents.vars.viewportMidW
-            Crafty.viewport.scroll('_x', -(playerMidX - ns.GameComponents.vars.viewportMidW))
-          
-          if playerMidY > ns.GameComponents.vars.viewportMidH and (ns.GameComponents.vars.MAXH - playerMidY) > ns.GameComponents.vars.viewportMidH
-            Crafty.viewport.scroll('_y', -(playerMidY - ns.GameComponents.vars.viewportMidH))
+          @viewportFocusPlayer false
+            
+        @_actionbuffer.push
+          sent:false
+          name:"move"
+          args:
+            x:@x
+            y:@y
+            from:
+              from
             
       return
   })
