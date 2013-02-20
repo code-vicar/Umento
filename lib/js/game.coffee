@@ -1,18 +1,28 @@
+#= require "entities.js"
 #= require "gamecomponents.js"
 #= require "socket.js"
 
 $ ->
   
+  Crafty = window.Crafty
+  
   ns = window.Umento = window.Umento || {}
+  
+  GE = new ns.GameEntities()
   
   socket = ns.socket
   
   #emitted after you attempt to join a game
   socket.on "joinGame", (data)->
-    ns.gamestate.localPlayer = null
     if data.result
-      ns.gamestate.localPlayer = data.player
-      Crafty.e("2D, DOM, player, Human, Fourway").attr({x:ns.gamestate.localPlayer.x, y:ns.gamestate.localPlayer.y, z:10}).fourway(ns.gamestate.localPlayer.speed);
+      playerGE = GE.get "player"
+      playerGE.args
+        x:data.player.x
+        y:data.player.y
+        speed:data.player.speed
+      playerEnt = playerGE.initclient Crafty
+      
+      ns.gamestate.localPlayer = player:data.player, playerEnt:playerEnt
 
   #emitted each time actions are taken on the client and are sent to the server
   socket.on "serverCorrection", (data)->
@@ -22,8 +32,6 @@ $ ->
 
   #emitted each time a player disconnects from the game
   socket.on "playerDisconnected", (data)->
-
-  Crafty = window.Crafty
   
   logUpdate = (e)->
     console.log "loading update"
@@ -90,12 +98,20 @@ $ ->
     
     Crafty.audio.play('lounge',-1,1)
     
-    for ent in ns.gamestate.entities
-      Crafty.e("2D, DOM, " + ent.entity).attr({x:ent.x, y:ent.y})
+    for rawEnt in ns.gamestate.entities
+      ent = GE.get rawEnt.name
+      ent.args rawEnt.args
+      ent.initclient Crafty
     
     #load other players that are already in the game
-    for player in ns.gamestate.players
-      Crafty.e("2D, DOM, player").attr({x:player.x, y:player.y, z:10})
+    playerGE = GE.get "player"
+    for p in ns.gamestate.players
+      playerGE.args
+        x:p.player.x
+        y:p.player.y
+        speed:p.player.speed
+        otherplayer:true
+      playerGE.initclient Crafty
       
     #when the main scene starts, try to join the game
     socket.emit "joinGame", {}

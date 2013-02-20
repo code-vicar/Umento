@@ -1,4 +1,3 @@
-
 class GameState
     constructor:(props)->
       #set up default properties
@@ -18,28 +17,31 @@ class GameState
             Object.defineProperty this, key, Object.getOwnPropertyDescriptor(props, key)
 
     initialize:->
-        
       if @w > 0 and @h > 0
         for x in [0..(@w-1)]
           for y in [0..(@h-1)]  
             @entities.push
-              x:x*@tilesize
-              y:y*@tilesize
-              entity:'grass'
-            if x is @w-1 or x is 0 or y is @h-1 or y is 0
-              @entities.push
+              name:"grass"
+              args:
                 x:x*@tilesize
                 y:y*@tilesize
-                entity:'edge, solid'
+            if x is @w-1 or x is 0 or y is @h-1 or y is 0
+              @entities.push
+                name:"edge"
+                args:
+                  x:x*@tilesize
+                  y:y*@tilesize
             
         for log in [0...@logs]
           #randomly generate x and y positions
           x = (Math.floor(Math.random()*(@w-3))+1)
           y = (Math.floor(Math.random()*(@h-3))+1)
           @entities.push
-            x:x*@tilesize
-            y:y*@tilesize
-            entity:'log'
+            name:"log"
+            args:
+              x:x*@tilesize
+              y:y*@tilesize
+            
             
     playerInGame:(player) ->
       @players.some (p, index) ->

@@ -7,6 +7,7 @@ class Player
       @speed = 2
       @MaxHP = 20
       @CurrentHP = 20
+      @Name = "player"
       
       #create properties from the object passed to the constuctor
       for key,val of props

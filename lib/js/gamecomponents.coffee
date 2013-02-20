@@ -20,7 +20,7 @@ ns.GameComponents.load = ->
     
   Crafty.c('Human', {
     init:->
-      @requires("SpriteAnimation, Collision, Grid")
+      @requires("SpriteAnimation, Collision")
       @animate("walk",0,0,4)
       
       @bind 'NewDirection', (direction)->

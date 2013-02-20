@@ -114,14 +114,31 @@ function main(redisClient, redisStore) {
     res.type('txt').send('Not found');
   });
   
-  //set up variables for accessing the User, and Gamestate models
-  var User = require('./models/user')(redisClient);
-  var GameState = require('./models/gamestate');
-  var Player = require('./models/player');
   
+  //account model
+  var User = require('./models/user')(redisClient);
+  
+  //get the crafty server simulation
+  var CraftyServer = require("./CraftyServer");
+  CraftyServer.init();
+  
+  //set up variables for accessing the Game models
+  var GE = require("./lib/js/entities");
+  var GameEntities = new GE();
+  var GameState = require("./models/gamestate");
+  var Player = require("./models/player");
+  var PlayerEntityTracker = [];
   //construct and initialize the gamestate
   var gs = new GameState({w:60, h:34, logs:15});
   gs.initialize();
+  
+  //loop over the entities in the new game and
+  //  add them to the Crafty Server Simulation
+  gs.entities.forEach(function(rawEnt, index) {
+    var ent = GameEntities.get(rawEnt.name);
+    ent.args(rawEnt.args);
+    ent.initserver(CraftyServer);
+  });
   
   //start the http server listening for requests
   server.listen(app.get("umento_httpPort"));
@@ -341,7 +358,16 @@ function main(redisClient, redisStore) {
         //  notify other sockets about the update
         //check if this player entity is already in the game (can happen if a single user opens multiple tabs to the game)
         if (!gs.playerInGame(hs.session.player)) {
+          //add the player to the server simulation
+          var playerGE = GameEntities.get("player");
+          playerGE.args({x:hs.session.player.x, y:hs.session.player.y, speed:hs.session.player.speed});
+          var playerEnt = playerGE.initserver(CraftyServer);
+          
+          //associate the entity with this player's id
+          PlayerEntityTracker.push({id:hs.session.player.id, entity:playerEnt});
+          //add the player to the gamestate
           gs.players.push(hs.session.player);
+          
           
           //tell other players a new player has joined
           socket.broadcast.emit("playerJoined", {player:hs.session.player});
@@ -423,8 +449,17 @@ function main(redisClient, redisStore) {
               return;
             }
           });
-          //remove it
-          gs.players.splice(pIndex,1);
+          var tIndex = 0;
+          PlayerEntityTracker.forEach(function(t, index) {
+            if (hs.session.player.id === t.id) {
+              tIndex = index;
+              return;
+            }
+          });
+          //remove the entity from the Crafty Server Simulation
+          PlayerEntityTracker[tIndex].entity.destroy();
+          //remove the player from the gamestate
+          gs.players.splice(pIndex, 1);
           //notify other players
           socket.broadcast.emit("playerDisconnected", {player:hs.session.player});
         }
