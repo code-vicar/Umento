@@ -52,9 +52,40 @@ $ ->
   
   #emitted each time a new player joins the game
   socket.on "playerJoined", (data)->
+    playerGE = GE.get "player"
+    playerGE.args
+      x:data.player.x
+      y:data.player.y
+      speed:data.player.speed
+      otherplayer:true
+    pEnt = playerGE.initclient Crafty
+    PlayerEntityTracker.push
+      id:data.player.id
+      playerEnt: pEnt
 
   #emitted each time a player disconnects from the game
   socket.on "playerDisconnected", (data)->
+    pID = data.player.id
+    pIdx = -1
+    ns.gamestate.players.some (p, idx)->
+      match = p.id is pID
+      if match
+        pIdx = idx
+      return match
+    if pIdx >= 0
+      ns.gamestate.players.splice(pIdx, 1)
+    
+    pEnt = null
+    pEntIdx = -1
+    PlayerEntityTracker.some (t, idx)->
+      match = t.id is pID
+      if match
+        pEnt = t.playerEnt
+        pEntIdx = idx
+      return match
+    if pEnt? and pEntIdx >= 0
+      PlayerEntityTracker.splice(pEntIdx, 1)
+      pEnt.destroy()
   
   logUpdate = (e)->
     console.log "loading update"
