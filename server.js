@@ -471,25 +471,34 @@ function main(redisClient, redisStore) {
         userCount = ((userCount - 1) < 0) ? 0 : userCount - 1;
         if (hs.session.player !== null && typeof hs.session.player !== 'undefined' && gs.playerInGame(hs.session.player)) {
           //find the index of the player object in the gamestate
-          var pIndex = 0;
-          gs.players.forEach(function(p, index) {
-            if (hs.session.player.id === p.id) {
+          var pIndex = -1;
+          gs.players.some(function(p, index) {
+            var match = hs.session.player.id === p.id;
+            if (match) {
               pIndex = index;
-              return;
             }
+            return match;
           });
-          var tIndex = 0;
-          PlayerEntityTracker.forEach(function(t, index) {
-            if (hs.session.player.id === t.id) {
-              tIndex = index;
-              return;
+          var pEnt = null;
+          var pEntIdx = -1;
+          PlayerEntityTracker.some(function(t, index) {
+            var match = hs.session.player.id === t.id;
+            if (match) {
+              pEnt = t;
+              pEntIdx = index;
             }
+            return match;
           });
-          //remove the entity from the Crafty Server Simulation
-          var pEnt = PlayerEntityTracker.splice(tIndex, 1);
-          pEnt.entity.destroy();
-          //remove the player from the gamestate
-          gs.players.splice(pIndex, 1);
+          
+          if (pEnt !== null && pEntIdx >= 0) {
+            //remove the entity from the Crafty Server Simulation
+            PlayerEntityTracker.splice(pEntIdx, 1);
+            pEnt.entity.destroy();
+          }
+          if (pIndex >= 0) {
+            //remove the player from the gamestate
+            gs.players.splice(pIndex, 1);
+          }
           //notify other players
           socket.broadcast.emit("playerDisconnected", {player:hs.session.player});
         }
