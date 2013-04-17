@@ -1,2 +1,4 @@
 .c9revisions/
 .afignore
+*.sublime*
+database.json

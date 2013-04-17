@@ -1,79 +1,51 @@
 require('coffee-script');
 var http = require('http');
-var redis = require('redis');
-var connectRedis = require('connect-redis');
+var mysql = require('mysql');
+var connectMysql = require('connect-mysql');
 var express = require('express');
 var socketio = require('socket.io');
 var utils = require('./utils');
 var UUIDGen = require('node-uuid');
+var dbSettings = require("../database.json");
+var Models = require("/models");
 
 var MINUTE = 60000;
 //two hour max age
 var COOKIEMAXAGE = 2*60*MINUTE;
 
-var RedisStore = connectRedis(express);
+var MySqlStore = connectMysql(express);
 var app = express();
 var server = http.createServer(app);
 
 //set a debug variable so we know
 // if we want to send non-uglified code to the client
 var debug = true;
+var serverPort = 8080;
 
-//c9.io umento development settings
+//dev settings
 app.configure('development', function() {
   console.log("in development");
-  debug = true;
-  app.set("umento_httpPort", process.env.PORT || 8080);
-  app.set("umento_redisHost", "70.89.137.93");
-  app.set("umento_redisPort", 6379);
-  app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
 
-  console.log("redis host: " + app.get("umento_redisHost"));
-  console.log("redis port: " + app.get("umento_redisPort"));
-  console.log("redis auth: " + app.get("umento_redisAuth"));
+  var mysqlClient = mysql.createConnection(dbSettings.dev);
+  var mysqlStore = new MySqlStore({client: mysqlClient});
 
-  var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
-  redisClient.auth(app.get("umento_redisAuth"));
-  //dev database is 0, which is default
-  var redisStore = new RedisStore({client: redisClient});
-
-  main(redisClient, redisStore);
+  main(mysqlClient, mysqlStore);
 });
 
-//app fog umento.hp.af.cm production settings
+//prod settings
 app.configure('production', function() {
   console.log("in production");
   debug = false;
-  app.set("umento_httpPort", process.env.VCAP_APP_PORT);
-  app.set("umento_redisHost", "70.89.137.93");
-  app.set("umento_redisPort", 6379);
-  app.set("umento_redisAuth", "cauVK8QGb5neYUKGnQrMyEIU");
-    
-  console.log("redis host: " + app.get("umento_redisHost"));
-  console.log("redis port: " + app.get("umento_redisPort"));
-  console.log("redis auth: " + app.get("umento_redisAuth"));
+  serverPort = 80;
   
-  var redisClient = redis.createClient(app.get("umento_redisPort"), app.get("umento_redisHost"));
-  redisClient.auth(app.get("umento_redisAuth"));
-  //change to the production database
-  redisClient.select(1, function() {
-    var redisStore = new RedisStore({client: redisClient});
+  var mysqlClient = mysql.createConnection(dbSettings.prod);
+  var mysqlStore = new MySqlStore({client: mysqlClient});
   
-    main(redisClient, redisStore);
-  });
-  
-  //set up a regular redis ping command to keep the connection open
-  setInterval(function() {
-    redisClient.ping();
-  }, 30*MINUTE);
+  main(mysqlClient, mysqlStore);
 });
 
-function main(redisClient, redisStore) {
-  //log errors from the redis database
-  redisClient.on("error", function(err){
-    console.log("Redis Error: " + err);
-  });
-  
+function main(mysqlClient, mysqlStore) {
+    
   //general configurations
   app.set('title', 'Try Umento');
   app.set('views', __dirname + '/views');
@@ -89,7 +61,7 @@ function main(redisClient, redisStore) {
   app.use(express.session({
     secret: cookieSecret,
     key: 'umento.sid',
-    store: redisStore,
+    store: mysqlStore,
     cookie: { path:'/', httpOnly:true, maxAge:COOKIEMAXAGE }
   }));
   app.use(require('connect-assets')({src:__dirname + '/lib', buildDir:__dirname + '/public'}));
@@ -114,9 +86,9 @@ function main(redisClient, redisStore) {
     res.type('txt').send('Not found');
   });
   
-  
-  //account model
-  var User = require('./models/user')(redisClient);
+  //User account schema
+  var User = Models.User;
+  var ChatMessage = Models.ChatMessage;
   
   //get the crafty server simulation
   var CraftyServer = require("./CraftyServer");
@@ -141,7 +113,7 @@ function main(redisClient, redisStore) {
   });
   
   //start the http server listening for requests
-  server.listen(app.get("umento_httpPort"));
+  server.listen(serverPort);
   
   //start the socketio framework listening to the http server
   var io = socketio.listen(server);
@@ -155,7 +127,7 @@ function main(redisClient, redisStore) {
         //get the sessionID from the cookie. (it must be stored in a variable named "sessionID" on the handshake object)
         handShakeData.sessionID = utils.parseSignedCookie(handShakeData.cookie['umento.sid'], cookieSecret);
         //retrieve the session store object using the sessionID from the cookie
-        redisStore.load(handShakeData.sessionID, function(err, sess) {
+        mysqlStore.load(handShakeData.sessionID, function(err, sess) {
           if (err || !sess) {
             //can't  get session information from the store
             //deny the socket connection with a message
@@ -205,14 +177,9 @@ function main(redisClient, redisStore) {
   //create the function that renders the home page
   function renderHome(req, res) {
     res.ViewData.title = "Monumentous";
-    redisClient.lrange("chatMessages", 0, 19, function(err, reply) {
-      reply = reply ? reply : [];
-      var msgs = [];
-      reply.forEach(function(msg){
-        msgs.unshift(JSON.parse(msg));
-      });
+    ChatMessage.all({order:"ts DESC", limit:20}, function(err, chatMessages) {
       res.set(noCacheResHeaders);
-      res.ViewData.messages = JSON.stringify(msgs);
+      res.ViewData.messages = chatMessages.toJSON();
       res.render("default", res.ViewData);
     });
   }
@@ -305,16 +272,20 @@ function main(redisClient, redisStore) {
           usrData.email = data.email;
         }
         //generate the new user in a model
-        var user = new User(usrData);
-        //save the model to redis
-        user.save(function(err, savedUser) {
-          if (err || !savedUser) {
-            console.log("could not create account ->");
-            console.log(err);
-            socket.emit("createAccount", {result:false});
+        User.create(usrData, function(err, usr) {
+          var socketResponse = {};
+          if (err) {
+            console.log("could not create account.");
+            socketResponse.result = false;
+            if (usr.errors) {
+              console.log(usr.errors);
+              socketResponse.errors = usr.errors;
+            }
+            socket.emit("createAccount", socketResponse);
           } else {
-            accountCreateOrLogin(hs.session, savedUser, function() {
-              socket.emit("createAccount", {result:true, username:savedUser.username});
+            socketResponse = {result:true, username:usr.username};
+            accountCreateOrLogin(hs.session, usr, function() {
+              socket.emit("createAccount", socketResponse);
             });
           }
         });
@@ -328,6 +299,7 @@ function main(redisClient, redisStore) {
         //check their credentials
         User.Authenticate(data.username, data.password, function(err, user) {
           if (err || !user) {
+            console.log(err);
             socket.emit("login", {result:false});
           } else {
             //the credentials were authentic
@@ -431,7 +403,7 @@ function main(redisClient, redisStore) {
     //listen for a chat message
     socket.on("chatMessage", function(data) {
       
-      //set up the data that will be stored in redis
+      //set up the data that will be stored in the database
       var pushData = {
         nickname: data.nickname,
         message: data.message,
@@ -444,19 +416,24 @@ function main(redisClient, redisStore) {
       }
       
       // serialize the data and push it onto the end of the chatMessages list
-      redisClient.lpush("chatMessages", JSON.stringify(pushData), function(err, reply) {
+      // redisClient.lpush("chatMessages", JSON.stringify(pushData), function(err, reply) {
+      // });
+
+      ChatMessage.create(pushData, function(err, cm) {
+        if (err) {
+          console.log(err);
+        }
+        //the client already knows that it submitted a message, but the server may have overwritten some of it
+        //  so we'll send the corrections back to that client so that it has the final copy
+        //  p.s. the client that emitted the message included an index
+        //   create a new response object for the originating client and put the index on it so it knows which message to correct
+        var dataCorrection = pushData;
+        dataCorrection.index = data.index;
+        socket.emit("chatCorrection", dataCorrection); 
+        
+        //the other clients don't need the index information, so send them the data without it
+        socket.broadcast.emit("chatMessage", pushData);
       });
-      
-      //the client already knows that it submitted a message, but the server may have overwritten some of it
-      //  so we'll send the corrections back to that client so that it has the final copy
-      //  p.s. the client that emitted the message included an index
-      //   create a new response object for the originating client and put the index on it so it knows which message to correct
-      var dataCorrection = pushData;
-      dataCorrection.index = data.index;
-      socket.emit("chatCorrection", dataCorrection); 
-      
-      //the other clients don't need the index information, so send them the data without it
-      socket.broadcast.emit("chatMessage", pushData);
     });
     
     //listen for socket disconnections
