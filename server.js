@@ -36,7 +36,7 @@ app.configure('development', function() {
 app.configure('production', function() {
   console.log("in production");
   debug = false;
-  serverPort = 80;
+  serverPort = 2080;
   
   var mysqlClient = mysql.createConnection(dbSettings.prod);
   var mysqlStore = new MySqlStore({client: mysqlClient});
