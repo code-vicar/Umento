@@ -87,7 +87,6 @@ function main(mysqlClient, mysqlStore) {
   });
   
   //User account schema
-  debugger;
   var User = Models.User;
   var ChatMessage = Models.ChatMessage;
   
@@ -180,7 +179,7 @@ function main(mysqlClient, mysqlStore) {
     res.ViewData.title = "Monumentous";
     ChatMessage.all({order:"ts DESC", limit:20}, function(err, chatMessages) {
       res.set(noCacheResHeaders);
-      res.ViewData.messages = chatMessages;
+      res.ViewData.messages = JSON.stringify(chatMessages);
       res.render("default", res.ViewData);
     });
   }
@@ -421,7 +420,7 @@ function main(mysqlClient, mysqlStore) {
       // serialize the data and push it onto the end of the chatMessages list
       // redisClient.lpush("chatMessages", JSON.stringify(pushData), function(err, reply) {
       // });
-
+      console.log(pushData);
       ChatMessage.create(pushData, function(err, cm) {
         if (err) {
           console.log(err);
