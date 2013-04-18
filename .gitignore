@@ -1,4 +1,5 @@
 .c9revisions/
 .afignore
 *.sublime*
+node_modules/
 database.json

@@ -6,8 +6,8 @@ var express = require('express');
 var socketio = require('socket.io');
 var utils = require('./utils');
 var UUIDGen = require('node-uuid');
-var dbSettings = require("../database.json");
-var Models = require("/models");
+var dbSettings = require("./database.json");
+var Models = require("./models/");
 
 var MINUTE = 60000;
 //two hour max age
@@ -45,7 +45,7 @@ app.configure('production', function() {
 });
 
 function main(mysqlClient, mysqlStore) {
-    
+
   //general configurations
   app.set('title', 'Try Umento');
   app.set('views', __dirname + '/views');
@@ -87,6 +87,7 @@ function main(mysqlClient, mysqlStore) {
   });
   
   //User account schema
+  debugger;
   var User = Models.User;
   var ChatMessage = Models.ChatMessage;
   
@@ -179,7 +180,7 @@ function main(mysqlClient, mysqlStore) {
     res.ViewData.title = "Monumentous";
     ChatMessage.all({order:"ts DESC", limit:20}, function(err, chatMessages) {
       res.set(noCacheResHeaders);
-      res.ViewData.messages = chatMessages.toJSON();
+      res.ViewData.messages = chatMessages;
       res.render("default", res.ViewData);
     });
   }
@@ -220,6 +221,7 @@ function main(mysqlClient, mysqlStore) {
   //handle event where account is created, or user logs in
   var accountCreateOrLogin = function(sess, user, fn) {
     //store the user in the session
+    console.log(user);
     sess.user = user;
     //set up a player entity for this user, so they can play the game
     //determine starting point for the player entity
@@ -265,6 +267,7 @@ function main(mysqlClient, mysqlStore) {
     
     //listen for new user accounts
     socket.on("createAccount", function(data) {
+      console.log("try create");
       //make sure they aren't already signed in
       if (!hs.session.user && data.hasOwnProperty("username") && data.hasOwnProperty("password")) {
         var usrData = { username:data.username, password:data.password };
