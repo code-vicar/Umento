@@ -177,7 +177,7 @@ function main(mysqlClient, mysqlStore) {
   //create the function that renders the home page
   function renderHome(req, res) {
     res.ViewData.title = "Monumentous";
-    ChatMessage.all({order:"ts DESC", limit:20}, function(err, chatMessages) {
+    ChatMessage.all({order:"ts ASC", limit:20}, function(err, chatMessages) {
       res.set(noCacheResHeaders);
       res.ViewData.messages = JSON.stringify(chatMessages);
       res.render("default", res.ViewData);
@@ -209,6 +209,11 @@ function main(mysqlClient, mysqlStore) {
   //handle game page request
   app.get("/game", function(req, res) {
     renderGame(req, res);
+  });
+
+  app.get("/test", function(req, res) {
+    res.ViewData.title = "Monumentous - Test";
+    res.render("test", res.ViewData);
   });
   
   //handle gamestate json request
