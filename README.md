@@ -16,7 +16,8 @@ like chat messages and connected user counts
 The real-time chat portion of the page is created using socket.io
 
 ##Database
-The backend is a mysql server, for storing the chat messages and the session data
+The backend is a mysql server, for storing the chat messages and the session data,
+migrations are tracked and performed with the nodejs db-migrate library
 
 ##The Game
 The game page is written using CraftyJS on the client, with the multiplayer portion being handled using socket.io
