@@ -3,6 +3,7 @@ Umento
 ________
 
 First attempt at a chat/game/blog site built on NodeJS and express
+Check it out here http://mon.umento.us
 
 ##Assets
 This site is built on express, it uses "connect-assets" for serving coffee and stylus files,
