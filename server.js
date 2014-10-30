@@ -153,6 +153,7 @@ function main(mysqlClient, mysqlStore) {
     
     //enabled transports (removed websocket since AppFog doesn't support it yet)
     io.set('transports', [
+      'websocket',
       'xhr-polling'
     ]);
   });
@@ -177,7 +178,7 @@ function main(mysqlClient, mysqlStore) {
   //create the function that renders the home page
   function renderHome(req, res) {
     res.ViewData.title = "Monumentous";
-    ChatMessage.all({order:"ts ASC", limit:20}, function(err, chatMessages) {
+    ChatMessage.all({order:"ts DESC", limit:20}, function(err, chatMessages) {
       res.set(noCacheResHeaders);
       res.ViewData.messages = JSON.stringify(chatMessages);
       res.render("default", res.ViewData);

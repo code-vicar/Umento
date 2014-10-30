@@ -1,0 +1,17 @@
+{
+  "dev": {
+    "driver"      : "mysql",
+    "host"        : "localhost",
+    "database"    : "",
+    "user"        : "",
+    "password"    : ""
+  },
+
+  "prod": {
+    "driver"      : "mysql",
+    "host"        : "localhost",
+    "database"    : "",
+    "user"        : "",
+    "password"    : ""
+  }
+}

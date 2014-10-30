@@ -13,7 +13,7 @@ ConnectedUsersAPI = ns.ConnectedUsersAPI
 $ ->
   #set up messages and connected users sub views
   seedData = JSON.parse $("#hdnMessages").val()
-  messages = new MessageAPI.Messages seedData
+  messages = new MessageAPI.Messages seedData.reverse()
   messagesView = new MessageAPI.MessagesView collection:messages
   connectedUsers = new ConnectedUsersAPI.ConnectedUsers({});
   connectedUsersView = new ConnectedUsersAPI.ConnectedUsersView model:connectedUsers
