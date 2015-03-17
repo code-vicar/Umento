@@ -8,21 +8,21 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "~3.0.5",
+    "bcryptjs": "^2.1.0",
     "coffee-script": "~1.4.0",
-    "socket.io": "~0.9.13",
-    "db-migrate": "~0.4.1",
-    "mysql": "~2.0.0-alpha7",
+    "connect-assets": "~2.3.3",
     "connect-mysql": "~0.2.7",
+    "cookie": "~0.0.5",
+    "cookie-signature": "~0.0.1",
+    "db-migrate": "~0.4.1",
+    "express": "~3.0.5",
+    "jade": "~0.27.7",
     "jugglingdb": "~0.2.0",
     "jugglingdb-mysql": "~0.0.1-5",
-    "jade": "~0.27.7",
-    "stylus": "~0.32.0",
+    "mysql": "~2.0.0-alpha7",
     "nib": "~0.9.1",
-    "connect-assets":"~2.3.3",
-    "bcrypt": "~0.7.3",
     "node-uuid": "~1.4.0",
-    "cookie": "~0.0.5",
-    "cookie-signature": "~0.0.1"
+    "socket.io": "~0.9.13",
+    "stylus": "~0.32.0"
   }
 }

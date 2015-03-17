@@ -1,19 +1,19 @@
 (function() {
-  
-  var bcrypt = require('../node_modules/bcrypt');
+
+  var bcrypt = require('bcryptjs');
   var SALT_WORK_FACTOR = 10;
   var MIN_USERNAME_LENGTH = 3;
   var MIN_PASSWORD_LENGTH = 8;
-  
+
   exports = module.exports = function(db) {
-    
+
     var User = function(props) {
       //defaults
       this.id = 0;
       this.username = "";
       this.password = "";
       this.email = "";
-      
+
       //create properties from the object passed to the constuctor
       for (var key in props) {
         if (props.hasOwnProperty(key) && typeof props[key] !== 'Object' && typeof props[key] !== 'function' && props[key] !== null) {
@@ -27,29 +27,29 @@
         }
       }
     };
-    
+
     User.prototype.comparePassword = function(pass, cb) {
       var me = this;
-      
+
       if (typeof pass !== 'string' && typeof pass !== 'number') {
         return cb("Invalid password as parameter");
       }
-      
+
       if (!me.hasOwnProperty('id') || typeof me.id !== 'number' || me.id <= 0) {
         return cb("Invalid or missing ID");
       }
-      
+
       if (!me.hasOwnProperty('password') || typeof me.password !== 'string' || me.password < MIN_PASSWORD_LENGTH) {
         return cb("Invalid or missing password");
       }
-      
+
       if (!me.hasOwnProperty('username') || typeof me.username !== 'string' || me.username < MIN_USERNAME_LENGTH) {
         return cb("Invalid or missing username");
       }
-      
+
       db.sismember("Users", me.username, function(err, reply) {
         if (err) { return cb(err); }
-        
+
         if (reply === 0)
         {
           return cb("No such user");
@@ -62,7 +62,7 @@
         });
       });
     };
-    
+
     User.prototype.toJSON = function(excludeID, convertToStrings) {
       var ret = {};
       for (var key in this)
@@ -73,7 +73,7 @@
           if (typeof this[key] !== 'string' && convertToStrings) {
             this[key] = this[key].toString();
           }
-          
+
           Object.defineProperty(
             ret,
             key,
@@ -83,33 +83,33 @@
       }
       return ret;
     };
-    
+
     User.prototype.save = function(cb) {
       var me = this;
-      
+
       //validate required params
       if (!me.hasOwnProperty('username') || typeof me.username !== 'string' || me.username.length < MIN_USERNAME_LENGTH) {
         return cb("Invalid or missing username");
       }
-      
+
       if (!me.hasOwnProperty('password') || typeof me.password !== 'string' || me.password.length < MIN_PASSWORD_LENGTH) {
         return cb("Invalid or missing password");
       }
-      
+
       //actual saving portion, will call this asynchronously
       var _save = function(obj, cb) {
         if (Object.keys(obj).length > 1) {
           //use hmset to set the field values in this user's redis hash
           db.hmset("User:" + me.id, obj, function(err, reply) {
             if (err) { return cb(err); }
-            
+
             return cb(null, me);
           });
         } else {
           return cb("Cannot save a user with no properties");
         }
       };
-      
+
       var _incAndSave = function(cb) {
         db.incr("global:User:id", function(err, newID) {
           if (err) { return cb(err); }
@@ -119,7 +119,7 @@
             if (err) { return cb(err); }
             bcrypt.hash(me.password, salt, function(err, hash) {
               if (err) { return cb(err); }
-              
+
               me.password = hash;
               var usrJSON = me.toJSON(true, true);
               db.sadd("Users", me.username);
@@ -129,7 +129,7 @@
           });
         });
       };
-      
+
       var _update = function(cb){
         //can't update the password or the username here
         var usrJSON = me.toJSON(true, true);
@@ -137,7 +137,7 @@
         delete usrJSON.username;
         _save(usrJSON, cb);
       };
-      
+
       var _create = function(cb) {
         db.get("global:User:id", function(err, reply) {
           if (err) { return cb(err); }
@@ -152,7 +152,7 @@
           }
         });
       };
-      
+
       db.sismember("Users", me.username, function(err, reply) {
         if (err) { return cb(err); }
         if (reply === 1) {
@@ -167,12 +167,12 @@
         }
       });
     };
-    
+
     User.Remove = function(id, cb) {
       if (typeof id !== 'number' || id <= 0) {
         return cb("Invalid ID");
       }
-      
+
       //check if this user already exists in the database
       db.hget("User:" + id, "username", function (err, reply) {
         if (err) { return cb(err); }
@@ -180,15 +180,15 @@
         {
           return cb(null, "Didn't exist");
         }
-        
+
         db.srem("Users", reply);
         db.del("User:" + reply + ":id", "User:" + id);
         cb(null, "Ok");
       });
     };
-    
+
     User.findOne = function(props, cb) {
-      
+
       var _load = function(id, cb) {
         db.hgetall("User:" + id, function(err, obj){
           if (err) { return cb(err); }
@@ -196,7 +196,7 @@
           cb(null, new User(obj));
         });
       };
-      
+
       if (typeof props === 'object') {
         if (props.hasOwnProperty('id') && typeof props.id === 'number') {
           db.hexists("User:" + props.id, "username", function(err, reply) {
@@ -228,7 +228,7 @@
         cb("Incorrect arguments, pass an object with a key of id, or username");
       }
     };
-    
+
     User.Authenticate = function(name, pass, cb) {
       User.findOne({username:name}, function(err, user) {
       if (err || !user) { return cb("Could not authenticate"); }
@@ -238,8 +238,8 @@
         });
       });
     };
-    
+
     return User;
   };
-  
+
 })();
