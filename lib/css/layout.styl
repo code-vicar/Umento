@@ -6,7 +6,7 @@
 global-reset()
 
 body
-  background black
+  background fixed top left url('/img/lasersBG.png') no-repeat, black
   font-family 'DroidSansMonoRegular', Verdana, sans-serif
   color white
 
@@ -26,37 +26,40 @@ a
 total-width = 100%
 
 .mainheader
-  column 12
+  column 11
+  offset 1
   border-radius left 7px
-  background linear-gradient(left, rgba(255,255,255,.8) 50%, rgba(0,0,0,.8) 70%)
-  color #717165
   h1
     font-size 26px
     font-weight bold
     text-transform uppercase
 
 .primarynav
-  column 12
+  column 11
+  offset 1
+  padding 0 0 20px 0
   ul
     list-style-type none
     margin 0
     padding 0
     li
       display inline
-      margin-right 5px
+      margin-right 15px
       a
         color #fff
     li:last-child
       margin-right 0px
 
 .mainfooter
-  column 12
+  column 11
+  offset 1
   text-align right
 
 //Login styles (Login.html template)
 .login
   z-index 1000
   absolute top right
+  margin 0 120px 0 0
   clearfix()
   .button
     float right

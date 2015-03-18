@@ -177,7 +177,7 @@ function main(mysqlClient, mysqlStore) {
   
   //create the function that renders the home page
   function renderHome(req, res) {
-    res.ViewData.title = "Monumentous";
+    res.ViewData.title = "Labumentous";
     ChatMessage.all({order:"ts DESC", limit:20}, function(err, chatMessages) {
       res.set(noCacheResHeaders);
       res.ViewData.messages = JSON.stringify(chatMessages);
@@ -187,13 +187,13 @@ function main(mysqlClient, mysqlStore) {
   
   //create the function that renders the about page
   function renderAbout(req, res) {
-    res.ViewData.title = "Monumentous - About";
+    res.ViewData.title = "Labumentous - About";
     res.render("about", res.ViewData);
   }
   
   //create the function that renders the game page
   function renderGame(req, res) {
-    res.ViewData.title = "Monumentous - Game";
+    res.ViewData.title = "Labumentous - Game";
     res.render("game", res.ViewData);
   }
   
@@ -213,7 +213,7 @@ function main(mysqlClient, mysqlStore) {
   });
 
   app.get("/test", function(req, res) {
-    res.ViewData.title = "Monumentous - Test";
+    res.ViewData.title = "Labumentous - Test";
     res.render("test", res.ViewData);
   });
   
